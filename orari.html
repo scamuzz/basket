@@ -508,7 +508,7 @@ function renderSchedule() {
 
       const dow = GIORNI_DOW[giorno];
       const date = new Date(nxStart);
-      date.setDate(nxStart.getDate() + ((dow - 1 + 7) % 7));
+      date.setDate(nxStart.getDate() + (dow - nxStart.getDay() + 7) % 7);
       const nxInfo = Object.assign({}, defInfo || {}, ovInfo);
 
       let content, rowClass;
@@ -517,8 +517,8 @@ function renderSchedule() {
         if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
         rowClass = ' extra-day';
       } else if (nxIsCancelled) {
-        content = `<span class="orario-time cancelled">${defInfo.orario || ''}</span>
-          <div class="orario-nota">⚠️ Annullato${nxInfo.nota ? ' – ' + nxInfo.nota : ''}</div>`;
+        content = `<span class="orario-time cancelled">${defInfo.orario || ''}</span>` +
+          `<div class="orario-nota">⚠️ Annullato${nxInfo.nota ? ' – ' + nxInfo.nota : ''}</div>`;
         rowClass = ' modified';
       } else {
         content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag">orario modificato</span>`;
