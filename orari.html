@@ -121,6 +121,9 @@
       margin: 20px 0 12px; display: flex; align-items: center; gap: 10px;
     }
     .week-section-label::after { content: ''; flex: 1; height: 1px; background: #c5d5f7; }
+    .next-week-note {
+      font-size: 0.73rem; color: #607d8b; margin-bottom: 6px; font-style: italic;
+    }
 
     /* PANNELLO GESTORE */
     .manager-panel {
@@ -480,7 +483,76 @@ function renderSchedule() {
   }
 
   renderWeekSection('📅 Settimana corrente', wkData, wkStart, false);
-  renderWeekSection('📅 Settimana prossima', nxData, nxStart, true);
+
+  // --- SETTIMANA PROSSIMA: solo variazioni rispetto al default ---
+  const nxEnd = new Date(nxStart); nxEnd.setDate(nxStart.getDate() + 6);
+  let hasNextDiffs = false;
+  const nextCards = [];
+
+  visibleGroups.forEach(g => {
+    const defaults = getEffectiveDefaults(g.key);
+    const nxOverrides = (nxData[g.key]) || {};
+    let daysHtml = '';
+
+    GIORNI_ORDER.forEach(giorno => {
+      const defInfo = defaults[giorno];
+      const ovInfo  = nxOverrides[giorno];
+      if (!ovInfo) return;
+
+      const nxHasActiveDefault = defInfo && defInfo.attivo;
+      const nxIsCancelled = nxHasActiveDefault && ovInfo.attivo === false;
+      const nxTimeChanged = ovInfo.orario && nxHasActiveDefault && ovInfo.orario !== defInfo.orario;
+      const nxIsExtraDay  = ovInfo.attivo && !nxHasActiveDefault;
+
+      if (!nxIsCancelled && !nxTimeChanged && !nxIsExtraDay) return;
+
+      const dow = GIORNI_DOW[giorno];
+      const date = new Date(nxStart);
+      date.setDate(nxStart.getDate() + (dow - nxStart.getDay() + 7) % 7);
+      const nxInfo = Object.assign({}, defInfo || {}, ovInfo);
+
+      let content, rowClass;
+      if (nxIsExtraDay) {
+        content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag tag-extra">aggiunto</span>`;
+        if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
+        rowClass = ' extra-day';
+      } else if (nxIsCancelled) {
+        content = `<span class="orario-time cancelled">${defInfo.orario || ''}</span>` +
+          `<div class="orario-nota">⚠️ Annullato${nxInfo.nota ? ' – ' + nxInfo.nota : ''}</div>`;
+        rowClass = ' modified';
+      } else {
+        content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag">orario modificato</span>`;
+        if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
+        rowClass = ' modified';
+      }
+
+      daysHtml += `<div class="day-row${rowClass}">
+        <div class="day-name">${GIORNI_IT[giorno]}<div class="day-date">${formatDate(date)}</div></div>
+        <div class="orario-info">${content}</div>
+      </div>`;
+      hasNextDiffs = true;
+    });
+
+    if (daysHtml) {
+      const card = document.createElement('div');
+      card.className = 'gruppo-card' + (activeFilter !== 'all' && activeFilter !== g.key ? ' hidden' : '');
+      card.dataset.gruppo = g.key;
+      card.dataset.week = 'next';
+      card.innerHTML = `<div class="gruppo-title">🏀 ${g.label}<span class="gruppo-badge ${g.badgeClass}">${g.category}</span></div>
+        <div class="next-week-note">Solo variazioni rispetto al programma standard</div>
+        ${daysHtml}`;
+      nextCards.push(card);
+    }
+  });
+
+  if (hasNextDiffs) {
+    const divider = document.createElement('div');
+    divider.className = 'week-section-label';
+    divider.id = 'next-week-divider';
+    divider.textContent = `📅 Settimana prossima · ${formatDate(nxStart)} – ${formatDate(nxEnd)}`;
+    container.appendChild(divider);
+    nextCards.forEach(c => container.appendChild(c));
+  }
 }
 
 // ADMIN: build edit form
