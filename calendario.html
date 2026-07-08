@@ -247,11 +247,11 @@
           <option value="u17_f">Under 17 ♀</option>
           <option value="u15_f">Under 15 ♀</option>
         </optgroup>
-        <optgroup label="Maschili">
+        <optgroup label="Senior">
           <option value="dr1">Div. Reg. 1 ♂</option>
           <option value="dr4">Div. Reg. 4 ♂</option>
         </optgroup>
-        <optgroup label="Annate">
+        <optgroup label="Giovanili">
           <option value="a2010">2010</option>
           <option value="a2011">2011</option>
           <option value="a2012">2012</option>
@@ -449,7 +449,7 @@ function render() {
           ${item.ora ? `<span class="partita-ora">⏰ ${esc(item.ora)}</span>` : ''}
           ${item.risultato ? `<span class="partita-risultato">${esc(item.risultato)}</span>` : ''}
         </div>
-        ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${esc(item.citta)}${item.indirizzo?', '+esc(item.indirizzo):''}</div>` : ''}`;
+        ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${item.indirizzo ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.citta+', '+item.indirizzo)}" target="_blank" rel="noopener noreferrer">${esc(item.citta)}, ${esc(item.indirizzo)}</a>` : esc(item.citta)}</div>` : ''}`;
     }
 
     // Convocati
