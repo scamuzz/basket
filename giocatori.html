@@ -288,14 +288,12 @@ function render() {
   container.innerHTML = '';
   const admin = isManager();
 
-  let visibleGroups;
-  if (activeGroup !== 'tutti') {
-    visibleGroups = GROUPS.filter(g => g.key === activeGroup);
-  } else if (activeCat !== 'tutti') {
-    visibleGroups = GROUPS.filter(g => g.category === activeCat);
-  } else {
-    visibleGroups = GROUPS;
+  if (activeGroup === 'tutti') {
+    container.innerHTML = '<div class="no-items">👆 Seleziona una squadra per vedere i giocatori</div>';
+    return;
   }
+
+  const visibleGroups = GROUPS.filter(g => g.key === activeGroup);
 
   const categories = [...new Set(visibleGroups.map(g => g.category))];
   const showCatDivider = categories.length > 1;
