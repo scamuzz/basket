@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏀</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>📆 Calendario Partite · Basket Visconti</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f5ff; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(160deg, #001f6b 0%, #003399 50%, #1a5fc8 100%);
+      color: white; padding: 36px 20px 24px; text-align: center; position: relative; overflow: hidden;
+    }
+    .header::before { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.08), transparent); }
+    .back-link {
+      position: absolute; top: 14px; left: 14px;
+      background: rgba(255,255,255,0.22); border-radius: 20px;
+      padding: 7px 15px; font-size: 0.76rem; font-weight: 700;
+      color: white; text-decoration: none; z-index: 2; backdrop-filter: blur(4px);
+    }
+    .back-link:hover { background: rgba(255,255,255,0.38); }
+    .pin-btn {
+      position: absolute; top: 14px; right: 14px;
+      background: rgba(255,255,255,0.22); border: none; border-radius: 50%;
+      width: 40px; height: 40px; font-size: 1.3rem; cursor: pointer; z-index: 2;
+      backdrop-filter: blur(4px); color: white; transition: background 0.2s;
+    }
+    .pin-btn:hover { background: rgba(255,255,255,0.38); }
+    .header .icons { font-size: 3rem; display: block; margin-bottom: 10px; position: relative; }
+    .header h1 { font-size: 1.6rem; font-weight: 800; position: relative; }
+    .header .subtitle { font-size: 0.82rem; opacity: 0.9; margin-top: 6px; position: relative; }
+    .sync-status { display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: 0.7rem; margin-top: 10px; opacity: 0.95; position: relative; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: white; animation: blink 1.5s infinite; flex-shrink: 0; }
+    .sync-dot.connected { background: #69f0ae; animation: none; }
+    .sync-dot.error { background: #ff5252; animation: none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    .wave-divider { display: block; line-height: 0; overflow: hidden;
+      background: linear-gradient(160deg, #001f6b 0%, #003399 50%, #1a5fc8 100%); }
+    .wave-divider svg { display: block; width: 100%; }
+    .container { max-width: 540px; margin: 0 auto; padding: 16px 12px 64px; }
+
+    /* FILTRI */
+    .filter-row {
+      display: flex; gap: 8px; margin-bottom: 6px; overflow-x: auto;
+      padding-bottom: 4px; scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      background: white; border: 2px solid #c5d5f7; border-radius: 20px;
+      padding: 7px 12px; font-size: 0.72rem; font-weight: 700; color: #003399;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: linear-gradient(135deg, #003399, #1a5fc8); color: white; border-color: transparent;
+    }
+
+    /* PARTITA CARD */
+    .partita-card {
+      background: white; border-radius: 16px; padding: 16px 16px 14px;
+      margin-bottom: 12px; box-shadow: 0 3px 14px rgba(0,51,153,0.07);
+      border: 2px solid #c5d5f7; border-left: 5px solid #003399;
+      position: relative; transition: opacity 0.2s;
+    }
+    .partita-card.passata { opacity: 0.65; border-left-color: #b0bec5; background: #f9fafb; }
+    .partita-card.evento { border-left-color: #FFCC00; border-color: #fff3cc; }
+    .partita-card.evento .campionato-badge { background: #fff8e1; color: #7a5f00; border-color: #ffe082; }
+    .partita-card.prossima { border-left-color: #1a5fc8; }
+    .partita-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .campionato-badge {
+      font-size: 0.62rem; font-weight: 800; padding: 3px 10px; border-radius: 10px;
+      background: #edf1ff; color: #003399; border: 1.5px solid #c5d5f7;
+    }
+    .partita-data { font-size: 0.72rem; font-weight: 700; color: #90a4ae; }
+    .partita-avversario { font-size: 0.98rem; font-weight: 800; color: #1a3a6c; margin-bottom: 5px; }
+    .partita-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .partita-luogo { font-size: 0.76rem; font-weight: 700; padding: 3px 10px; border-radius: 8px; }
+    .partita-luogo.casa { background: #edf1ff; color: #003399; }
+    .partita-luogo.trasferta { background: #fff3e0; color: #e65100; }
+    .partita-ora { font-size: 0.76rem; color: #607d8b; font-weight: 600; }
+    .partita-risultato { font-size: 0.82rem; font-weight: 800; color: #003399;
+      background: #edf1ff; padding: 2px 10px; border-radius: 8px; }
+    .partita-descrizione { font-size: 0.82rem; color: #607d8b; margin-top: 5px; line-height: 1.55; }
+    .partita-trasferta-info { font-size: 0.72rem; color: #e65100; margin-top: 5px; font-weight: 600; }
+    .partita-date-row { display: flex; align-items: center; gap: 4px; }
+    .partita-admin-btns { display: flex; align-items: center; gap: 4px; }
+    .partita-del-btn, .partita-edit-btn {
+      background: none; border: none; color: #c5d5f7; cursor: pointer;
+      font-size: 0.9rem; transition: color 0.2s; padding: 2px 3px; line-height: 1;
+    }
+    .partita-del-btn:hover { color: #e53935; }
+    .partita-edit-btn:hover { color: #FFCC00; }
+
+    .no-items { text-align: center; font-size: 0.88rem; color: #90a4ae; font-style: italic;
+      padding: 30px 10px; background: white; border-radius: 16px;
+      border: 2px dashed #c5d5f7; margin-bottom: 16px; }
+    .section-title { font-size: 0.78rem; font-weight: 800; color: #003399;
+      text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 14px 2px;
+      display: flex; align-items: center; gap: 6px; }
+    .section-title::after { content: ''; flex: 1; height: 2px;
+      background: linear-gradient(90deg, #FFCC00 0%, transparent 100%); }
+
+    /* PANNELLO GESTORE */
+    .manager-panel {
+      display: none; background: #fff8e1; border-radius: 18px;
+      padding: 18px; margin-bottom: 18px; border: 2px solid #ffe082;
+    }
+    .manager-panel.visible { display: block; }
+    .manager-panel h3 { font-size: 0.76rem; color: #f57f17; text-transform: uppercase;
+      letter-spacing: 0.9px; font-weight: 800; margin-bottom: 12px; }
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .form-group { margin-bottom: 8px; }
+    .form-group label { font-size: 0.75rem; font-weight: 700; color: #555; display: block; margin-bottom: 4px; }
+    .form-input {
+      width: 100%; border: 1.5px solid #ffe082; border-radius: 10px;
+      padding: 9px 12px; font-size: 0.86rem; font-family: inherit; color: #333; outline: none; background: white;
+    }
+    .form-input:focus { border-color: #FFCC00; }
+    select.form-input { cursor: pointer; }
+    .pub-btn { flex: 1; background: linear-gradient(135deg, #003399, #1a5fc8); color: white;
+      border: none; border-radius: 10px; padding: 11px; font-size: 0.86rem;
+      font-weight: 700; cursor: pointer; margin-top: 4px; font-family: inherit; }
+    .pub-btn:hover { opacity: 0.9; }
+    .cancel-edit-btn { flex: 1; background: #eceff1; color: #607d8b;
+      border: none; border-radius: 10px; padding: 11px; font-size: 0.86rem;
+      font-weight: 700; cursor: pointer; margin-top: 4px; font-family: inherit; display: none; }
+    .cancel-edit-btn:hover { background: #cfd8dc; }
+    .pub-btn-row { display: flex; gap: 8px; }
+
+    /* CONVOCATI */
+    .conv-toggle-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: #edf1ff; border: 1.5px solid #c5d5f7; border-radius: 10px;
+      padding: 5px 11px; font-size: 0.74rem; font-weight: 700; color: #003399;
+      cursor: pointer; font-family: inherit; margin-top: 10px; transition: background 0.2s;
+    }
+    .conv-toggle-btn:hover { background: #dae3ff; }
+    .conv-section { display: none; margin-top: 10px; }
+    .conv-section.open { display: block; }
+    .conv-label { font-size: 0.70rem; font-weight: 800; color: #90a4ae;
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .conv-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .conv-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: #edf1ff; border: 1.5px solid #c5d5f7; border-radius: 10px;
+      padding: 4px 10px; font-size: 0.76rem; font-weight: 700; color: #003399;
+    }
+    .conv-chip.selected { background: linear-gradient(135deg, #003399, #1a5fc8); color: white; border-color: transparent; }
+    .conv-chip-remove { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.8rem; padding: 0; line-height: 1; }
+    .conv-chip-remove:hover { color: white; }
+    .conv-player-btn {
+      background: white; border: 1.5px solid #c5d5f7; border-radius: 10px;
+      padding: 4px 10px; font-size: 0.74rem; font-weight: 700; color: #003399;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .conv-player-btn:hover { background: #edf1ff; }
+    .conv-player-btn.convocato { background: linear-gradient(135deg, #003399, #1a5fc8); color: white; border-color: transparent; }
+    .conv-empty { font-size: 0.78rem; color: #90a4ae; font-style: italic; }
+    .conv-divider { border: none; border-top: 1.5px solid #edf1ff; margin: 10px 0; }
+
+    /* PIN MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 28px 24px;
+      max-width: 300px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+    .modal h3 { font-size: 1rem; font-weight: 800; color: #003399; margin-bottom: 8px; }
+    .modal p { font-size: 0.78rem; color: #607d8b; margin-bottom: 16px; }
+    .modal input { width: 100%; border: 2px solid #c5d5f7; border-radius: 10px;
+      padding: 11px 40px 11px 14px; font-size: 1rem; text-align: center;
+      letter-spacing: 2px; outline: none; font-family: inherit; }
+    .modal input:focus { border-color: #003399; }
+    .pin-input-wrap { position: relative; }
+    .pin-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; line-height: 1; }
+    .modal-btns { display: flex; gap: 10px; margin-top: 14px; }
+    .modal-btn { flex: 1; padding: 11px; border: none; border-radius: 10px;
+      font-size: 0.86rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .modal-btn.primary { background: linear-gradient(135deg, #003399, #1a5fc8); color: white; }
+    .modal-btn.secondary { background: #eceff1; color: #607d8b; }
+    .modal-error { font-size: 0.75rem; color: #e53935; margin-top: 8px; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #003399; color: white; padding: 10px 22px; border-radius: 24px;
+      font-size: 0.83rem; font-weight: 600; transition: transform 0.3s ease; z-index: 999;
+      box-shadow: 0 6px 24px rgba(0,51,153,0.3); white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .page-footer { text-align: center; font-size: 0.7rem; color: #aabbc8; padding: 20px 0; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">&#8592; Home</a>
+  <button class="pin-btn" id="pin-btn">🔒</button>
+  <span class="icons">📆</span>
+  <h1>Calendario Partite</h1>
+  <div class="subtitle">Tutte le squadre Basket Visconti</div>
+  <div class="sync-status">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-label">Connessione in corso…</span>
+  </div>
+</div>
+
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,36 C180,72 360,0 540,36 C720,72 900,0 1080,36 C1260,72 1380,12 1440,36 L1440,72 L0,72 Z" fill="#f0f5ff"/>
+  </svg>
+</div>
+
+<div class="container">
+
+  <!-- PANNELLO GESTORE -->
+  <div class="manager-panel" id="manager-panel">
+    <h3>➕ Aggiungi Partita / Evento</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;min-width:120px;">
+        <label>Data</label>
+        <input type="date" class="form-input" id="f-data"/>
+      </div>
+      <div class="form-group" style="flex:1;min-width:100px;">
+        <label>Ora</label>
+        <input type="time" class="form-input" id="f-ora"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select class="form-input" id="f-tipo">
+        <option value="partita">🏀 Partita</option>
+        <option value="evento">🎉 Evento / Torneo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Squadra / Campionato</label>
+      <select class="form-input" id="f-campionato">
+        <optgroup label="Femminili">
+          <option value="prom_f">Promozione ♀</option>
+          <option value="u17_f">Under 17 ♀</option>
+          <option value="u15_f">Under 15 ♀</option>
+        </optgroup>
+        <optgroup label="Maschili">
+          <option value="dr1">Div. Reg. 1 ♂</option>
+          <option value="dr4">Div. Reg. 4 ♂</option>
+        </optgroup>
+        <optgroup label="Annate">
+          <option value="a2010">2010</option>
+          <option value="a2011">2011</option>
+          <option value="a2012">2012</option>
+          <option value="a2013">2013</option>
+          <option value="a2014">2014</option>
+          <option value="a2015">2015</option>
+        </optgroup>
+        <optgroup label="Minibasket">
+          <option value="m2016">Mini 2016</option>
+          <option value="m2017">Mini 2017</option>
+          <option value="m2018">Mini 2018</option>
+          <option value="m2019">Mini 2019</option>
+          <option value="m2021">Mini 2020-21</option>
+          <option value="m2023">Mini 2022-23</option>
+        </optgroup>
+        <option value="evento">🎉 Evento/Torneo generico</option>
+      </select>
+    </div>
+    <div id="partita-fields">
+      <div class="form-group">
+        <label>Avversario</label>
+        <input type="text" class="form-input" id="f-avversario" placeholder="Nome squadra avversaria…" maxlength="60"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;">
+          <label>Casa / Trasferta</label>
+          <select class="form-input" id="f-luogo">
+            <option value="casa">🏠 Casa</option>
+            <option value="trasferta">✈️ Trasferta</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Risultato (opz.)</label>
+          <input type="text" class="form-input" id="f-risultato" placeholder="es. 76-58" maxlength="10"/>
+        </div>
+      </div>
+      <div id="trasferta-fields" style="display:none;">
+        <div class="form-group">
+          <label>Città (trasferta)</label>
+          <input type="text" class="form-input" id="f-citta" placeholder="es. Milano" maxlength="60"/>
+        </div>
+        <div class="form-group">
+          <label>Indirizzo palestra</label>
+          <input type="text" class="form-input" id="f-indirizzo" placeholder="es. Via Roma 1" maxlength="100"/>
+        </div>
+      </div>
+    </div>
+    <div id="evento-fields" style="display:none;">
+      <div class="form-group">
+        <label>Nome evento</label>
+        <input type="text" class="form-input" id="f-nome-evento" placeholder="es. Torneo Primavera…" maxlength="60"/>
+      </div>
+      <div class="form-group">
+        <label>Descrizione (opz.)</label>
+        <input type="text" class="form-input" id="f-descrizione" placeholder="es. Palestra Comunale…" maxlength="120"/>
+      </div>
+    </div>
+    <div class="pub-btn-row">
+      <button class="pub-btn" id="add-btn">➕ Aggiungi</button>
+      <button class="cancel-edit-btn" id="cancel-edit-btn">✕ Annulla modifica</button>
+    </div>
+  </div>
+
+  <!-- FILTRI -->
+  <div class="filter-row" id="filter-row">
+    <button class="filter-btn active" data-filter="tutti">Tutti</button>
+    <button class="filter-btn" data-filter="prom_f">Prom ♀</button>
+    <button class="filter-btn" data-filter="u17_f">U17 ♀</button>
+    <button class="filter-btn" data-filter="u15_f">U15 ♀</button>
+    <button class="filter-btn" data-filter="dr1">DR1 ♂</button>
+    <button class="filter-btn" data-filter="dr4">DR4 ♂</button>
+    <button class="filter-btn" data-filter="a2010">2010</button>
+    <button class="filter-btn" data-filter="a2011">2011</button>
+    <button class="filter-btn" data-filter="a2012">2012</button>
+    <button class="filter-btn" data-filter="a2013">2013</button>
+    <button class="filter-btn" data-filter="a2014">2014</button>
+    <button class="filter-btn" data-filter="a2015">2015</button>
+    <button class="filter-btn" data-filter="mini">Mini</button>
+    <button class="filter-btn" data-filter="evento">🎉 Evento</button>
+  </div>
+
+  <div class="section-title">🏀 Partite &amp; Gare</div>
+  <div id="calendario-container"></div>
+</div>
+
+<div class="page-footer">📆 Calendario · Basket Visconti Brignano</div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>🔑 Accesso Gestore</h3>
+    <p>Inserisci il PIN per gestire il calendario</p>
+    <div class="pin-input-wrap">
+      <input type="password" id="pin-input" placeholder="••••••••" maxlength="20" autocomplete="current-password"/>
+      <button class="pin-toggle" id="pin-toggle" type="button">👁️</button>
+    </div>
+    <div class="modal-error" id="modal-error"></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" id="modal-cancel">Annulla</button>
+      <button class="modal-btn primary" id="modal-confirm">Accedi</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyAfOMeAkXUIandLUhCR8nfyELOPVRyD3WU",
+  authDomain: "lista-spesa-b9eb1.firebaseapp.com",
+  databaseURL: "https://lista-spesa-b9eb1-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "lista-spesa-b9eb1",
+  storageBucket: "lista-spesa-b9eb1.firebasestorage.app",
+  messagingSenderId: "468690890938",
+  appId: "1:468690890938:web:048be7f27779d8862d9283"
+});
+const db = firebase.database();
+const calRef = db.ref('basket/calendario');
+const giocatoriRef = db.ref('basket/giocatori');
+const convocatiRef = db.ref('basket/convocati');
+
+const MINI_KEYS = ['m2016','m2017','m2018','m2019','m2021','m2023'];
+
+const CAMPIONATO_LABELS = {
+  prom_f:'Promozione ♀', u17_f:'Under 17 ♀', u15_f:'Under 15 ♀',
+  dr1:'Div. Reg. 1 ♂', dr4:'Div. Reg. 4 ♂',
+  a2010:'2010', a2011:'2011', a2012:'2012', a2013:'2013', a2014:'2014', a2015:'2015',
+  m2016:'Mini 2016', m2017:'Mini 2017', m2018:'Mini 2018',
+  m2019:'Mini 2019', m2021:'Mini 2020-21', m2023:'Mini 2022-23',
+  evento:'Evento/Torneo'
+};
+
+function isManager() { return localStorage.getItem('basketManager') === '1'; }
+function setManager(v) { localStorage.setItem('basketManager', v ? '1' : '0'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+let allData = {}, allPlayers = {}, allConvocati = {};
+let activeFilter = 'tutti', editingId = null;
+
+db.ref('.info/connected').on('value', snap => {
+  const dot = document.getElementById('sync-dot'), lbl = document.getElementById('sync-label');
+  if (snap.val()) { dot.className='sync-dot connected'; lbl.textContent='✅ Sincronizzato in tempo reale'; }
+  else { dot.className='sync-dot error'; lbl.textContent='❌ Offline – riconnessione…'; }
+});
+
+calRef.on('value', snap => { allData = snap.val() || {}; render(); });
+giocatoriRef.on('value', snap => { allPlayers = snap.val() || {}; render(); });
+convocatiRef.on('value', snap => { allConvocati = snap.val() || {}; render(); });
+
+function matchesFilter(item) {
+  if (activeFilter === 'tutti') return true;
+  if (activeFilter === 'evento') return item.tipo === 'evento' || item.campionato === 'evento';
+  if (activeFilter === 'mini') return MINI_KEYS.includes(item.campionato);
+  return item.campionato === activeFilter;
+}
+
+function render() {
+  const container = document.getElementById('calendario-container');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+
+  const entries = Object.entries(allData)
+    .filter(([,v]) => matchesFilter(v))
+    .sort((a,b) => (a[1].data||'').localeCompare(b[1].data||''));
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="no-items">Nessuna partita in programma 🏀</div>'; return;
+  }
+
+  container.innerHTML = '';
+  const now = new Date(); now.setHours(0,0,0,0);
+  const future = entries.filter(([,v]) => v.data >= todayStr);
+  const past = entries.filter(([,v]) => v.data < todayStr);
+
+  function renderCard([id, item]) {
+    const dDate = new Date(item.data);
+    const dateStr = isNaN(dDate) ? item.data : dDate.toLocaleDateString('it-IT',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    const isPast = item.data < todayStr;
+    const isNext = !isPast && future.indexOf(future.find(e=>e[0]===id)) === 0;
+    const isEvento = item.tipo === 'evento' || item.campionato === 'evento';
+    const campLabel = CAMPIONATO_LABELS[item.campionato] || item.campionato || '';
+
+    let bodyHtml = '';
+    if (isEvento) {
+      bodyHtml = `<div class="partita-avversario">${esc(item.nomeEvento || 'Evento')}</div>
+        ${item.descrizione ? `<div class="partita-descrizione">${esc(item.descrizione)}</div>` : ''}`;
+    } else {
+      bodyHtml = `<div class="partita-avversario">vs. ${esc(item.avversario || '—')}</div>
+        <div class="partita-info">
+          <span class="partita-luogo ${esc(item.luogo||'casa')}">${item.luogo==='trasferta'?'✈️ Trasferta':'🏠 Casa'}</span>
+          ${item.ora ? `<span class="partita-ora">⏰ ${esc(item.ora)}</span>` : ''}
+          ${item.risultato ? `<span class="partita-risultato">${esc(item.risultato)}</span>` : ''}
+        </div>
+        ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${esc(item.citta)}${item.indirizzo?', '+esc(item.indirizzo):''}</div>` : ''}`;
+    }
+
+    // Convocati
+    const conv = allConvocati[id] || {};
+    const groupKey = item.campionato;
+    const groupPlayers = allPlayers[groupKey] || {};
+    const playerEntries = Object.entries(groupPlayers).sort((a,b)=>(a[1].nome||'').localeCompare(b[1].nome||''));
+    const convIds = Object.keys(conv);
+
+    let convHtml = '';
+    if (!isEvento) {
+      const convNames = convIds.map(cid => {
+        const p = groupPlayers[cid]; return p ? esc(p.nome) : null;
+      }).filter(Boolean);
+
+      convHtml = `<button class="conv-toggle-btn" data-id="${id}">
+        👥 Convocati ${convIds.length > 0 ? `(${convIds.length})` : ''} <span style="margin-left:auto;font-size:0.7rem">▼</span>
+      </button>
+      <div class="conv-section" id="conv-${id}">`;
+
+      if (!isManager()) {
+        if (convIds.length === 0) {
+          convHtml += `<div class="conv-empty">Nessun convocato pubblicato.</div>`;
+        } else {
+          convHtml += `<div class="conv-label">Convocati</div><div class="conv-list">`;
+          convNames.forEach(n => { convHtml += `<span class="conv-chip selected">${n}</span>`; });
+          convHtml += `</div>`;
+        }
+      } else {
+        convHtml += `<div class="conv-label">Seleziona convocati</div><div class="conv-list" id="conv-list-${id}">`;
+        if (playerEntries.length === 0) {
+          convHtml += `<span class="conv-empty">Nessun giocatore in lista. Aggiungili dalla pagina Giocatori.</span>`;
+        } else {
+          playerEntries.forEach(([pid, p]) => {
+            const isSel = convIds.includes(pid);
+            convHtml += `<button class="conv-player-btn ${isSel?'convocato':''}" data-partita="${id}" data-player="${pid}">${esc(p.nome)}</button>`;
+          });
+        }
+        convHtml += `</div>`;
+      }
+      convHtml += `</div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = `partita-card${isPast?' passata':''}${isEvento?' evento':''}${isNext?' prossima':''}`;
+    card.innerHTML = `
+      <div class="partita-top">
+        <span class="campionato-badge">${esc(campLabel)}</span>
+        <div class="partita-date-row">
+          <span class="partita-data">📅 ${esc(dateStr)}</span>
+          ${isManager() ? `<div class="partita-admin-btns">
+            <button class="partita-edit-btn" data-id="${id}" title="Modifica">✏️</button>
+            <button class="partita-del-btn" data-id="${id}" title="Elimina">🗑️</button>
+          </div>` : ''}
+        </div>
+      </div>
+      ${bodyHtml}
+      ${convHtml}`;
+    container.appendChild(card);
+  }
+
+  if (future.length > 0) {
+    const lbl = document.createElement('div'); lbl.className = 'section-title';
+    lbl.innerHTML = '📅 Prossime partite'; container.appendChild(lbl);
+    future.forEach(renderCard);
+  }
+  if (past.length > 0) {
+    const lbl = document.createElement('div'); lbl.className = 'section-title';
+    lbl.innerHTML = '📜 Partite giocate'; container.appendChild(lbl);
+    [...past].reverse().forEach(renderCard);
+  }
+
+  // Convocati toggle
+  container.querySelectorAll('.conv-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sec = document.getElementById('conv-' + btn.dataset.id);
+      if (sec) sec.classList.toggle('open');
+    });
+  });
+
+  // Convocati click (admin)
+  if (isManager()) {
+    container.querySelectorAll('.conv-player-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.dataset.player, partita = btn.dataset.partita;
+        const ref = convocatiRef.child(partita).child(pid);
+        if (btn.classList.contains('convocato')) {
+          ref.remove().then(() => showToast('✅ Rimosso dai convocati'));
+        } else {
+          ref.set(true).then(() => showToast('✅ Convocato!'));
+        }
+      });
+    });
+    // Delete
+    container.querySelectorAll('.partita-del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (confirm('Eliminare questa partita?')) {
+          calRef.child(btn.dataset.id).remove()
+            .then(() => { convocatiRef.child(btn.dataset.id).remove(); showToast('✅ Partita eliminata'); });
+        }
+      });
+    });
+    // Edit
+    container.querySelectorAll('.partita-edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => loadEditForm(btn.dataset.id));
+    });
+  }
+}
+
+function loadEditForm(id) {
+  const item = allData[id]; if (!item) return;
+  editingId = id;
+  document.getElementById('f-data').value = item.data || '';
+  document.getElementById('f-ora').value = item.ora || '';
+  document.getElementById('f-tipo').value = item.tipo || 'partita';
+  document.getElementById('f-campionato').value = item.campionato || '';
+  document.getElementById('f-avversario').value = item.avversario || '';
+  document.getElementById('f-luogo').value = item.luogo || 'casa';
+  document.getElementById('f-risultato').value = item.risultato || '';
+  document.getElementById('f-citta').value = item.citta || '';
+  document.getElementById('f-indirizzo').value = item.indirizzo || '';
+  document.getElementById('f-nome-evento').value = item.nomeEvento || '';
+  document.getElementById('f-descrizione').value = item.descrizione || '';
+  toggleTipoFields();
+  document.getElementById('add-btn').textContent = '💾 Salva modifica';
+  document.getElementById('cancel-edit-btn').style.display = 'flex';
+  document.getElementById('manager-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleTipoFields() {
+  const tipo = document.getElementById('f-tipo').value;
+  const luogo = document.getElementById('f-luogo').value;
+  document.getElementById('partita-fields').style.display = tipo === 'partita' ? '' : 'none';
+  document.getElementById('evento-fields').style.display = tipo === 'evento' ? '' : 'none';
+  document.getElementById('trasferta-fields').style.display = (tipo === 'partita' && luogo === 'trasferta') ? '' : 'none';
+}
+document.getElementById('f-tipo').addEventListener('change', toggleTipoFields);
+document.getElementById('f-luogo').addEventListener('change', toggleTipoFields);
+toggleTipoFields();
+
+document.getElementById('add-btn').addEventListener('click', () => {
+  const data = document.getElementById('f-data').value;
+  if (!data) { showToast('⚠️ Seleziona una data!'); return; }
+  const tipo = document.getElementById('f-tipo').value;
+  const campionato = document.getElementById('f-campionato').value;
+  const item = { data, tipo, campionato };
+  if (document.getElementById('f-ora').value) item.ora = document.getElementById('f-ora').value;
+
+  if (tipo === 'partita') {
+    const avversario = document.getElementById('f-avversario').value.trim();
+    if (!avversario) { showToast('⚠️ Inserisci l\'avversario!'); return; }
+    item.avversario = avversario;
+    item.luogo = document.getElementById('f-luogo').value;
+    const ris = document.getElementById('f-risultato').value.trim();
+    if (ris) item.risultato = ris;
+    if (item.luogo === 'trasferta') {
+      const citta = document.getElementById('f-citta').value.trim();
+      const ind = document.getElementById('f-indirizzo').value.trim();
+      if (citta) item.citta = citta;
+      if (ind) item.indirizzo = ind;
+    }
+  } else {
+    const nome = document.getElementById('f-nome-evento').value.trim();
+    if (!nome) { showToast('⚠️ Inserisci il nome dell\'evento!'); return; }
+    item.nomeEvento = nome;
+    const desc = document.getElementById('f-descrizione').value.trim();
+    if (desc) item.descrizione = desc;
+  }
+
+  const op = editingId ? calRef.child(editingId).update(item) : calRef.push(item);
+  op.then(() => {
+    showToast(editingId ? '✅ Partita aggiornata!' : '✅ Partita aggiunta!');
+    resetForm();
+  }).catch(() => showToast('❌ Errore nel salvataggio'));
+});
+
+document.getElementById('cancel-edit-btn').addEventListener('click', resetForm);
+
+function resetForm() {
+  editingId = null;
+  ['f-data','f-ora','f-avversario','f-risultato','f-citta','f-indirizzo','f-nome-evento','f-descrizione']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-tipo').value = 'partita';
+  document.getElementById('f-campionato').value = 'prom_f';
+  document.getElementById('f-luogo').value = 'casa';
+  document.getElementById('add-btn').textContent = '➕ Aggiungi';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+  toggleTipoFields();
+}
+
+// Filtri
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); render();
+  });
+});
+
+// PIN
+const pinBtn = document.getElementById('pin-btn');
+const overlay = document.getElementById('modal-overlay');
+function updatePinBtn() { pinBtn.textContent = isManager() ? '🔐' : '🔒'; }
+updatePinBtn();
+if (isManager()) document.getElementById('manager-panel').classList.add('visible');
+
+pinBtn.addEventListener('click', () => {
+  if (isManager()) {
+    setManager(false); updatePinBtn();
+    document.getElementById('manager-panel').classList.remove('visible');
+    render(); showToast('🔐 Logout gestore effettuato');
+  } else {
+    document.getElementById('modal-error').textContent = '';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').type = 'password';
+    document.getElementById('pin-toggle').textContent = '👁️';
+    overlay.classList.add('open');
+    setTimeout(() => document.getElementById('pin-input').focus(), 100);
+  }
+});
+document.getElementById('modal-cancel').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+document.getElementById('modal-confirm').addEventListener('click', checkPin);
+document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
+document.getElementById('pin-toggle').addEventListener('click', () => {
+  const inp = document.getElementById('pin-input'), tog = document.getElementById('pin-toggle');
+  if (inp.type === 'password') { inp.type = 'text'; tog.textContent = '🙈'; }
+  else { inp.type = 'password'; tog.textContent = '👁️'; }
+});
+function checkPin() {
+  if (document.getElementById('pin-input').value === 'basket2026') {
+    setManager(true); overlay.classList.remove('open');
+    document.getElementById('manager-panel').classList.add('visible');
+    updatePinBtn(); render(); showToast('🔓 Modalità gestore attiva');
+  } else { document.getElementById('modal-error').textContent = '❌ PIN non corretto'; }
+}
+</script>
+</body>
+</html>

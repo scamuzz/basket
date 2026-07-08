@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏀</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>🏀 Basket Visconti Brignano</title>
+  <style>
+    :root { --bg: #f0f5ff; --blue: #003399; --yellow: #FFCC00; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(160deg, #001f6b 0%, #003399 50%, #1a5fc8 100%);
+      color: white; padding: 52px 20px 36px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .header::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.08), transparent),
+        radial-gradient(ellipse 50% 35% at 80% 70%, rgba(255,204,0,0.08), transparent);
+    }
+    .header::after {
+      content: ''; position: absolute; bottom: 0; left: -60%; right: -60%; height: 50px;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,204,0,0.10), transparent);
+    }
+    .particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.15); animation: floatUp linear infinite;
+    }
+    .particle:nth-child(1){width:8px;height:8px;left:10%;bottom:0;animation-duration:6s;animation-delay:0s}
+    .particle:nth-child(2){width:5px;height:5px;left:25%;bottom:0;animation-duration:4.5s;animation-delay:1s}
+    .particle:nth-child(3){width:10px;height:10px;left:42%;bottom:0;animation-duration:7s;animation-delay:2s}
+    .particle:nth-child(4){width:6px;height:6px;left:60%;bottom:0;animation-duration:5s;animation-delay:0.5s}
+    .particle:nth-child(5){width:12px;height:12px;left:75%;bottom:0;animation-duration:8s;animation-delay:1.5s}
+    .particle:nth-child(6){width:4px;height:4px;left:88%;bottom:0;animation-duration:4s;animation-delay:3s}
+    @keyframes floatUp {
+      0%{transform:translateY(0) scale(1);opacity:0.8}
+      100%{transform:translateY(-120px) scale(0.5);opacity:0}
+    }
+    .header .logo { display: block; margin-bottom: 14px; line-height: 1; position: relative; }
+    .logo-ring {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: linear-gradient(135deg, #003399 0%, #FFCC00 100%);
+      box-shadow: 0 0 18px rgba(255,204,0,0.4), 0 0 40px rgba(0,51,153,0.3);
+      font-size: 3rem;
+    }
+    .header h1 { font-size: 1.9rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 3px 12px rgba(0,0,0,0.25); position: relative; }
+    .header .subtitle { font-size: 0.85rem; opacity: 0.88; margin-top: 8px; font-weight: 500; letter-spacing: 0.4px; position: relative; }
+
+    .wave-divider { display: block; line-height: 0; overflow: hidden;
+      background: linear-gradient(160deg, #001f6b 0%, #003399 50%, #1a5fc8 100%); }
+    .wave-divider svg { display: block; width: 100%; }
+
+    .container { max-width: 540px; margin: 0 auto; padding: 22px 14px 64px; }
+
+    /* WELCOME */
+    .welcome-banner {
+      background: white; border-radius: 18px; padding: 20px 20px 18px;
+      margin-bottom: 24px; box-shadow: 0 4px 22px rgba(0,51,153,0.10);
+      border: 2px solid #c5d5f7; text-align: center;
+    }
+    .welcome-banner h2 { font-size: 1.05rem; color: #003399; font-weight: 800; margin-bottom: 7px; }
+    .welcome-banner p { font-size: 0.80rem; color: #607d8b; line-height: 1.65; }
+
+    /* SECTION LABEL */
+    .section-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.76rem; font-weight: 800; color: #003399;
+      text-transform: uppercase; letter-spacing: 1px; margin: 8px 0 14px 2px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 2px;
+      background: linear-gradient(90deg, #FFCC00 0%, transparent 100%);
+      border-radius: 2px;
+    }
+
+    /* MENU CARDS */
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .menu-card {
+      background: linear-gradient(145deg, #f5f8ff 0%, #edf1ff 100%);
+      border: 2.5px solid #c5d5f7; border-radius: 18px; padding: 22px 14px 18px;
+      box-shadow: 0 3px 16px rgba(0,51,153,0.07);
+      text-decoration: none; display: flex; flex-direction: column;
+      align-items: center; text-align: center; gap: 9px;
+      transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+      position: relative; overflow: hidden;
+    }
+    .menu-card:hover {
+      transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,51,153,0.18);
+      border-color: #FFCC00;
+    }
+    .card-icon { font-size: 2.8rem; line-height: 1; display: block; }
+    .card-title { font-size: 0.9rem; font-weight: 800; color: #003399; line-height: 1.3; }
+    .card-desc { font-size: 0.70rem; color: #78909c; line-height: 1.55; }
+
+    /* SQUADRE SECTION */
+    .squadre-section {
+      background: white; border-radius: 18px; padding: 18px;
+      box-shadow: 0 3px 16px rgba(0,51,153,0.07); border: 2px solid #c5d5f7;
+      margin-bottom: 16px;
+    }
+    .squadre-category {
+      font-size: 0.72rem; font-weight: 800; color: #003399;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 8px 0 6px; margin-bottom: 6px;
+      border-bottom: 2px solid #f0f5ff;
+    }
+    .squadre-category:not(:first-child) { margin-top: 10px; }
+    .squadre-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .squadra-chip {
+      background: #edf1ff; border: 1.5px solid #c5d5f7; border-radius: 12px;
+      padding: 4px 12px; font-size: 0.74rem; font-weight: 700; color: #003399;
+    }
+    .squadra-chip.femm { background: #fff0f5; border-color: #f9c0d6; color: #8b0040; }
+    .squadra-chip.masc { background: #edf1ff; border-color: #c5d5f7; color: #003399; }
+    .squadra-chip.mini { background: #fffde0; border-color: #ffe88a; color: #7a5f00; }
+
+    .page-footer { text-align: center; font-size: 0.7rem; color: #aabbc8; padding: 8px 0 24px; letter-spacing: 0.3px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="particles">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+  <span class="logo"><span class="logo-ring">🏀</span></span>
+  <h1>Visconti Brignano</h1>
+  <div class="subtitle">Portale Basket · Tesserati &amp; Famiglie</div>
+</div>
+
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,36 C180,72 360,0 540,36 C720,72 900,0 1080,36 C1260,72 1380,12 1440,36 L1440,72 L0,72 Z" fill="#f0f5ff"/>
+    <path d="M0,50 C220,18 440,66 660,46 C880,26 1100,62 1320,44 L1440,50 L1440,72 L0,72 Z" fill="#f0f5ff" opacity="0.55"/>
+  </svg>
+</div>
+
+<div class="container">
+
+  <div class="welcome-banner">
+    <h2>👋 Benvenuti nel portale Basket!</h2>
+    <p>Accedi alle informazioni della tua squadra: orari, partite, giocatori e comunicazioni.</p>
+  </div>
+
+  <!-- ORARI -->
+  <div class="section-label">📅 Allenamenti</div>
+  <a class="menu-card" href="orari.html" style="margin-bottom:24px;">
+    <span class="card-icon">📅</span>
+    <div class="card-title">Orari Allenamenti</div>
+    <div class="card-desc">Calendario settimanale per tutte le squadre</div>
+  </a>
+
+  <!-- NEWS -->
+  <div class="section-label">📰 Comunicazioni</div>
+  <a class="menu-card" href="news.html" style="margin-bottom:24px;">
+    <span class="card-icon">📰</span>
+    <div class="card-title">Notizie &amp; Avvisi</div>
+    <div class="card-desc">Comunicazioni generali e per singola squadra</div>
+  </a>
+
+  <!-- CALENDARIO + GIOCATORI -->
+  <div class="section-label">📆 Gare &amp; Squadre</div>
+  <div class="menu-grid" style="margin-bottom:24px;">
+    <a class="menu-card" href="calendario.html">
+      <span class="card-icon">📆</span>
+      <div class="card-title">Calendario Partite</div>
+      <div class="card-desc">Gare e convocazioni</div>
+    </a>
+    <a class="menu-card" href="giocatori.html">
+      <span class="card-icon">🏀</span>
+      <div class="card-title">Liste Giocatori</div>
+      <div class="card-desc">Elenco per squadra</div>
+    </a>
+  </div>
+
+  <!-- SQUADRE -->
+  <div class="section-label">🏅 Le nostre squadre</div>
+  <div class="squadre-section">
+    <div class="squadre-category">Femminili</div>
+    <div class="squadre-chips">
+      <span class="squadra-chip femm">Promozione ♀</span>
+      <span class="squadra-chip femm">Under 17 ♀</span>
+      <span class="squadra-chip femm">Under 15 ♀</span>
+    </div>
+    <div class="squadre-category">Maschili</div>
+    <div class="squadre-chips">
+      <span class="squadra-chip masc">Div. Reg. 1 ♂</span>
+      <span class="squadra-chip masc">Div. Reg. 4 ♂</span>
+    </div>
+    <div class="squadre-category">Annate</div>
+    <div class="squadre-chips">
+      <span class="squadra-chip masc">2010</span>
+      <span class="squadra-chip masc">2011</span>
+      <span class="squadra-chip masc">2012</span>
+      <span class="squadra-chip masc">2013</span>
+      <span class="squadra-chip masc">2014</span>
+      <span class="squadra-chip masc">2015</span>
+    </div>
+    <div class="squadre-category">Minibasket</div>
+    <div class="squadre-chips">
+      <span class="squadra-chip mini">Mini 2016</span>
+      <span class="squadra-chip mini">Mini 2017</span>
+      <span class="squadra-chip mini">Mini 2018</span>
+      <span class="squadra-chip mini">Mini 2019</span>
+      <span class="squadra-chip mini">Mini 2020-21</span>
+      <span class="squadra-chip mini">Mini 2022-23</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">🏀 Basket Visconti Brignano &nbsp;·&nbsp; Portale della squadra</div>
+
+</body>
+</html>
