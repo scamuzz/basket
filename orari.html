@@ -101,6 +101,8 @@
     .orario-time.cancelled { text-decoration: line-through; color: #b0bec5; }
     .orario-nota { font-size: 0.72rem; color: #e65100; margin-top: 2px; font-style: italic; }
     .no-train { font-size: 0.80rem; color: #b0bec5; font-style: italic; }
+    .select-prompt { text-align: center; padding: 32px 10px; background: white; border-radius: 18px;
+      border: 2px dashed #c5d5f7; color: #90a4ae; font-size: 0.88rem; font-style: italic; }
     .day-row.modified {
       background: #fff8e1; border-left: 3px solid #FFCC00;
       margin-left: -3px; padding-left: 7px; border-radius: 4px;
@@ -398,16 +400,20 @@ function mergeWithDefaults(weekObj, gruppo) {
 
 function renderSchedule() {
   buildFilterRow();
+  const container = document.getElementById('schedule-container');
+  container.innerHTML = '';
+
+  if (activeFilter === 'all') {
+    container.innerHTML = '<div class="select-prompt">👆 Seleziona una squadra per vedere gli orari</div>';
+    return;
+  }
+
   const wkData = weekData[currentWeekKey] || {};
   const nxData = weekData[nextWeekKey] || {};
   const wkStart = weekStart(currentWeekKey);
   const nxStart = weekStart(nextWeekKey);
-  const container = document.getElementById('schedule-container');
-  container.innerHTML = '';
 
-  const visibleGroups = (activeFilter === 'all')
-    ? GROUPS.filter(g => activeCat === 'all' || g.category === activeCat)
-    : GROUPS.filter(g => g.key === activeFilter);
+  const visibleGroups = GROUPS.filter(g => g.key === activeFilter);
 
   function renderWeekSection(label, wkObj, wkStartDate, isNext) {
     if (visibleGroups.length === 0) return;
