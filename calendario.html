@@ -13,6 +13,7 @@
     .header {
       background: linear-gradient(160deg, #001f6b 0%, #003399 50%, #1a5fc8 100%);
       color: white; padding: 36px 20px 24px; text-align: center; position: relative; overflow: hidden;
+      border-bottom: 4px solid #FFCC00;
     }
     .header::before { content: ''; position: absolute; inset: 0;
       background: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.08), transparent); }
@@ -47,17 +48,16 @@
 
     /* FILTRI */
     .filter-row {
-      display: flex; gap: 8px; margin-bottom: 6px; overflow-x: auto;
-      padding-bottom: 4px; scrollbar-width: none;
+      display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
+      padding-bottom: 4px;
     }
-    .filter-row::-webkit-scrollbar { display: none; }
     .filter-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
       padding: 7px 12px; font-size: 0.72rem; font-weight: 700; color: #003399;
       cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
     }
     .filter-btn.active, .filter-btn:hover {
-      background: linear-gradient(135deg, #003399, #1a5fc8); color: white; border-color: transparent;
+      background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
     }
 
     /* PARTITA CARD */
