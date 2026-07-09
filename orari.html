@@ -621,9 +621,9 @@ function renderEditForm(groupKey) {
     row.innerHTML = `
       <label>${dayLabel}</label>
       <input type="checkbox" class="edit-check" id="chk-${groupKey}-${giorno}" ${isAttivo ? 'checked' : ''}/>
-      <input type="time" class="edit-time" id="orario-start-${groupKey}-${giorno}" value="${tStart}" ${isAttivo ? 'required' : ''}/>
+      <input type="time" step="900" class="edit-time" id="orario-start-${groupKey}-${giorno}" value="${tStart}" ${isAttivo ? 'required' : ''}/>
       <span class="time-sep">–</span>
-      <input type="time" class="edit-time" id="orario-end-${groupKey}-${giorno}" value="${tEnd}" ${isAttivo ? 'required' : ''}/>
+      <input type="time" step="900" class="edit-time" id="orario-end-${groupKey}-${giorno}" value="${tEnd}" ${isAttivo ? 'required' : ''}/>
       <input type="text" class="edit-input" id="nota-${groupKey}-${giorno}" placeholder="nota (opz.)" value="${info.nota || ''}"/>`;
     const chkEl = row.querySelector(`#chk-${groupKey}-${giorno}`);
     const startEl = row.querySelector(`#orario-start-${groupKey}-${giorno}`);
@@ -635,6 +635,13 @@ function renderEditForm(groupKey) {
       } else {
         startEl.removeAttribute('required');
         endEl.removeAttribute('required');
+      }
+    });
+    startEl.addEventListener('change', () => {
+      if (startEl.value) {
+        const [h, m] = startEl.value.split(':').map(Number);
+        const endH = (h + 1) % 24;
+        endEl.value = `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
       }
     });
     sec.appendChild(row);
