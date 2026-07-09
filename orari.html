@@ -154,6 +154,13 @@
       font-size: 0.82rem; font-family: inherit; color: #333; flex: 1; min-width: 120px;
     }
     .edit-input:focus { outline: none; border-color: #FFCC00; }
+    .edit-time {
+      border: 1.5px solid #ffe082; border-radius: 8px; padding: 6px 8px;
+      font-size: 0.82rem; font-family: inherit; color: #333; width: 100px;
+    }
+    .edit-time:focus { outline: none; border-color: #FFCC00; }
+    .edit-time:required:invalid { border-color: #e53935; }
+    .time-sep { font-size: 0.82rem; color: #555; font-weight: 700; }
     .edit-check { width: 16px; height: 16px; cursor: pointer; }
     .save-btn {
       background: linear-gradient(135deg, #FFCC00, #e6a800); color: #3e2723;
@@ -336,6 +343,10 @@ function getCurrentWeekKey() {
 }
 function getNextWeekKey(cur) { const s = weekStart(cur); s.setDate(s.getDate()+7); return getISOWeek(s); }
 function formatDate(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit' }); }
+function parseOrario(orario) {
+  const m = orario.match(/^(\d{2}:\d{2})[–\-](\d{2}:\d{2})$/);
+  return m ? [m[1], m[2]] : ['', ''];
+}
 function showToast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2600);
@@ -604,12 +615,28 @@ function renderEditForm(groupKey) {
       d.setDate(wkStartForEdit.getDate() + ((dow - 1 + 7) % 7));
       dayLabel += ` <span style="font-size:0.68rem;color:#90a4ae;font-weight:400">${formatDate(d)}</span>`;
     }
+    const [tStart, tEnd] = parseOrario(info.orario || '');
+    const isAttivo = info.attivo;
     const row = document.createElement('div'); row.className = 'edit-row';
     row.innerHTML = `
       <label>${dayLabel}</label>
-      <input type="checkbox" class="edit-check" id="chk-${groupKey}-${giorno}" ${info.attivo ? 'checked' : ''}/>
-      <input type="text" class="edit-input" id="orario-${groupKey}-${giorno}" placeholder="es. 17:00–18:30" value="${info.orario || ''}" style="max-width:130px"/>
+      <input type="checkbox" class="edit-check" id="chk-${groupKey}-${giorno}" ${isAttivo ? 'checked' : ''}/>
+      <input type="time" class="edit-time" id="orario-start-${groupKey}-${giorno}" value="${tStart}" ${isAttivo ? 'required' : ''}/>
+      <span class="time-sep">–</span>
+      <input type="time" class="edit-time" id="orario-end-${groupKey}-${giorno}" value="${tEnd}" ${isAttivo ? 'required' : ''}/>
       <input type="text" class="edit-input" id="nota-${groupKey}-${giorno}" placeholder="nota (opz.)" value="${info.nota || ''}"/>`;
+    const chkEl = row.querySelector(`#chk-${groupKey}-${giorno}`);
+    const startEl = row.querySelector(`#orario-start-${groupKey}-${giorno}`);
+    const endEl = row.querySelector(`#orario-end-${groupKey}-${giorno}`);
+    chkEl.addEventListener('change', () => {
+      if (chkEl.checked) {
+        startEl.setAttribute('required', '');
+        endEl.setAttribute('required', '');
+      } else {
+        startEl.removeAttribute('required');
+        endEl.removeAttribute('required');
+      }
+    });
     sec.appendChild(row);
   });
   form.appendChild(sec);
@@ -621,12 +648,17 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
   const wk = weekSel === 'next' ? nextWeekKey : (weekSel === 'current' ? currentWeekKey : 'default');
   const ref = db.ref(`basket/orari/${wk}/${groupKey}`);
   const data = {};
+  let hasError = false;
   ['lunedi','martedi','mercoledi','giovedi','venerdi','sabato'].forEach(giorno => {
     const chk = document.getElementById(`chk-${groupKey}-${giorno}`);
-    const orario = document.getElementById(`orario-${groupKey}-${giorno}`).value.trim();
+    const tStart = document.getElementById(`orario-start-${groupKey}-${giorno}`).value;
+    const tEnd = document.getElementById(`orario-end-${groupKey}-${giorno}`).value;
     const nota = document.getElementById(`nota-${groupKey}-${giorno}`).value.trim();
+    if (chk.checked && (!tStart || !tEnd)) { hasError = true; }
+    const orario = (tStart && tEnd) ? `${tStart}–${tEnd}` : (tStart || tEnd || '');
     data[giorno] = { attivo: chk.checked, orario, nota };
   });
+  if (hasError) { showToast('⚠️ Inserisci l\'orario per tutti i giorni attivi'); return; }
   ref.set(data)
     .then(() => showToast('✅ Orari salvati!'))
     .catch(() => showToast('❌ Errore nel salvataggio'));
