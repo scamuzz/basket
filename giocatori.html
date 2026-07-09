@@ -268,7 +268,7 @@ let activeCat = 'tutti';
 let activeGroup = 'tutti';
 (function() {
   const savedCat = localStorage.getItem('basketCat');
-  if (savedCat && document.querySelector('#cat-row .cat-btn[data-cat="' + savedCat + '"]')) {
+  if (savedCat && document.querySelector('#cat-row .cat-btn[data-cat="' + CSS.escape(savedCat) + '"]')) {
     activeCat = savedCat;
     document.querySelectorAll('#cat-row .cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === savedCat));
   }

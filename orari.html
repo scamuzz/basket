@@ -362,7 +362,7 @@ let activeFilter = 'all';
 let activeCat = 'all';
 (function() {
   const savedCat = localStorage.getItem('basketCat');
-  if (savedCat && document.querySelector('.cat-btn[data-cat="' + savedCat + '"]')) {
+  if (savedCat && document.querySelector('.cat-btn[data-cat="' + CSS.escape(savedCat) + '"]')) {
     activeCat = savedCat;
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === savedCat));
   }

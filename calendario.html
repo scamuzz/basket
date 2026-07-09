@@ -400,7 +400,7 @@ let allData = {}, allPlayers = {}, allConvocati = {};
 let activeFilter = 'tutti', editingId = null;
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  if (saved && document.querySelector('.filter-btn[data-filter="' + saved + '"]')) {
+  if (saved && document.querySelector('.filter-btn[data-filter="' + CSS.escape(saved) + '"]')) {
     activeFilter = saved;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === saved));
   }
