@@ -345,6 +345,7 @@ function getCurrentWeekKey() {
 }
 function getNextWeekKey(cur) { const s = weekStart(cur); s.setDate(s.getDate()+7); return getISOWeek(s); }
 function formatDate(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit' }); }
+function capitalizeFirst(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 function parseOrario(orario) {
   const m = orario.match(/^(\d{2}:\d{2})[–\-](\d{2}:\d{2})$/);
   return m ? [m[1], m[2]] : ['', ''];
@@ -493,6 +494,7 @@ function renderSchedule() {
           content = `<span class="no-train">— nessun allenamento</span>`;
         } else {
           content = `<span class="orario-time">${info.orario || '—'}</span>`;
+          if (info.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(info.palestra)}</div>`;
           if (info.nota) content += `<div class="orario-nota">${info.nota}</div>`;
           if (hasOverriddenTime) content += `<span class="modified-tag">orario modificato</span>`;
           if (isExtraDay) content += `<span class="modified-tag tag-extra">aggiunto</span>`;
@@ -546,6 +548,7 @@ function renderSchedule() {
       let content, rowClass;
       if (nxIsExtraDay) {
         content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag tag-extra">aggiunto</span>`;
+        if (nxInfo.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
         if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
         rowClass = ' extra-day';
       } else if (nxIsCancelled) {
@@ -554,6 +557,7 @@ function renderSchedule() {
         rowClass = ' modified';
       } else {
         content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag">orario modificato</span>`;
+        if (nxInfo.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
         if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
         rowClass = ' modified';
       }
@@ -649,6 +653,8 @@ function renderEditForm(groupKey) {
     }
     const [tStart, tEnd] = parseOrario(info.orario || '');
     const isAttivo = info.attivo;
+    const palestraOpts = ['palazzetto','palatenda','palestrina'].map(p =>
+      `<option value="${p}"${info.palestra === p ? ' selected' : ''}>${capitalizeFirst(p)}</option>`).join('');
     const row = document.createElement('div'); row.className = 'edit-row';
     row.innerHTML = `
       <label>${dayLabel}</label>
@@ -656,6 +662,7 @@ function renderEditForm(groupKey) {
       ${timeSelectHTML('orario-start', groupKey, giorno, tStart)}
       <span class="time-sep">–</span>
       ${timeSelectHTML('orario-end', groupKey, giorno, tEnd)}
+      <select class="edit-time-sel" id="palestra-${groupKey}-${giorno}" style="width:100px;"><option value="">– palestra –</option>${palestraOpts}</select>
       <input type="text" class="edit-input" id="nota-${groupKey}-${giorno}" placeholder="nota (opz.)" value="${info.nota || ''}"/>`;
     const chkEl = row.querySelector(`#chk-${groupKey}-${giorno}`);
     const startHEl = row.querySelector(`#orario-start-h-${groupKey}-${giorno}`);
@@ -685,10 +692,11 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
     const tStart = getTimeFromSelects('orario-start', groupKey, giorno);
     const tEnd = getTimeFromSelects('orario-end', groupKey, giorno);
     const nota = document.getElementById(`nota-${groupKey}-${giorno}`).value.trim();
+    const palestra = document.getElementById(`palestra-${groupKey}-${giorno}`).value;
     if (chk.checked && (!tStart || !tEnd)) { hasError = true; }
     if (!chk.checked && (tStart || tEnd) && !(tStart && tEnd)) { hasError = true; }
     const orario = (tStart && tEnd) ? `${tStart}–${tEnd}` : '';
-    data[giorno] = { attivo: chk.checked, orario, nota };
+    data[giorno] = { attivo: chk.checked, orario, nota, palestra };
   });
   if (hasError) { showToast('⚠️ Inserisci sia l\'inizio che la fine dell\'orario per i giorni attivi'); return; }
   ref.set(data)

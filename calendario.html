@@ -298,6 +298,14 @@
           <input type="text" class="form-input" id="f-indirizzo" placeholder="es. Via Roma 1" maxlength="100"/>
         </div>
       </div>
+      <div id="casa-palestra-group" class="form-group">
+        <label>Palestra (casa) *</label>
+        <select class="form-input" id="f-palestra-casa">
+          <option value="">– seleziona palestra –</option>
+          <option value="palazzetto">Palazzetto</option>
+          <option value="palatenda">Palatenda</option>
+        </select>
+      </div>
     </div>
     <div id="evento-fields" style="display:none;">
       <div class="form-group">
@@ -391,6 +399,7 @@ const CAMPIONATO_LABELS = {
 function isManager() { return localStorage.getItem('basketManager') === '1'; }
 function setManager(v) { localStorage.setItem('basketManager', v ? '1' : '0'); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function capitalizeFirst(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 function showToast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2600);
@@ -460,7 +469,8 @@ function render() {
           ${item.ora ? `<span class="partita-ora">⏰ ${esc(item.ora)}</span>` : ''}
           ${item.risultato ? `<span class="partita-risultato">${esc(item.risultato)}</span>` : ''}
         </div>
-        ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${item.indirizzo ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.citta+', '+item.indirizzo)}" target="_blank" rel="noopener noreferrer">${esc(item.citta)}, ${esc(item.indirizzo)}</a>` : esc(item.citta)}</div>` : ''}`;
+        ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${item.indirizzo ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.citta+', '+item.indirizzo)}" target="_blank" rel="noopener noreferrer">${esc(item.citta)}, ${esc(item.indirizzo)}</a>` : esc(item.citta)}</div>` : ''}
+        ${item.luogo !== 'trasferta' && item.palestraCasa ? `<div class="partita-trasferta-info">🏛️ ${esc(capitalizeFirst(item.palestraCasa))}</div>` : ''}`;
     }
 
     if (item.note) {
@@ -583,6 +593,7 @@ function loadEditForm(id) {
   document.getElementById('f-campionato').value = item.campionato || '';
   document.getElementById('f-avversario').value = item.avversario || '';
   document.getElementById('f-luogo').value = item.luogo || 'casa';
+  document.getElementById('f-palestra-casa').value = item.palestraCasa || '';
   document.getElementById('f-risultato').value = item.risultato || '';
   document.getElementById('f-citta').value = item.citta || '';
   document.getElementById('f-indirizzo').value = item.indirizzo || '';
@@ -601,6 +612,7 @@ function toggleTipoFields() {
   document.getElementById('partita-fields').style.display = tipo === 'partita' ? '' : 'none';
   document.getElementById('evento-fields').style.display = tipo === 'evento' ? '' : 'none';
   document.getElementById('trasferta-fields').style.display = (tipo === 'partita' && luogo === 'trasferta') ? '' : 'none';
+  document.getElementById('casa-palestra-group').style.display = (tipo === 'partita' && luogo === 'casa') ? '' : 'none';
 }
 document.getElementById('f-tipo').addEventListener('change', toggleTipoFields);
 document.getElementById('f-luogo').addEventListener('change', toggleTipoFields);
@@ -616,16 +628,21 @@ document.getElementById('add-btn').addEventListener('click', () => {
 
   if (tipo === 'partita') {
     const avversario = document.getElementById('f-avversario').value.trim();
+    const luogo = document.getElementById('f-luogo').value;
+    const palestraCasa = luogo === 'casa' ? document.getElementById('f-palestra-casa').value : '';
     if (!avversario) { showToast('⚠️ Inserisci l\'avversario!'); return; }
+    if (luogo === 'casa' && !palestraCasa) { showToast('⚠️ Seleziona la palestra!'); return; }
     item.avversario = avversario;
-    item.luogo = document.getElementById('f-luogo').value;
+    item.luogo = luogo;
     const ris = document.getElementById('f-risultato').value.trim();
     if (ris) item.risultato = ris;
-    if (item.luogo === 'trasferta') {
+    if (luogo === 'trasferta') {
       const citta = document.getElementById('f-citta').value.trim();
       const ind = document.getElementById('f-indirizzo').value.trim();
       if (citta) item.citta = citta;
       if (ind) item.indirizzo = ind;
+    } else {
+      item.palestraCasa = palestraCasa;
     }
   } else {
     const nome = document.getElementById('f-nome-evento').value.trim();
@@ -654,6 +671,7 @@ function resetForm() {
   document.getElementById('f-tipo').value = 'partita';
   document.getElementById('f-campionato').value = 'prom_f';
   document.getElementById('f-luogo').value = 'casa';
+  document.getElementById('f-palestra-casa').value = '';
   document.getElementById('add-btn').textContent = '➕ Aggiungi';
   document.getElementById('cancel-edit-btn').style.display = 'none';
   toggleTipoFields();
