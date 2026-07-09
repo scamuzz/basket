@@ -154,12 +154,13 @@
       font-size: 0.82rem; font-family: inherit; color: #333; flex: 1; min-width: 120px;
     }
     .edit-input:focus { outline: none; border-color: #FFCC00; }
-    .edit-time {
-      border: 1.5px solid #ffe082; border-radius: 8px; padding: 6px 8px;
-      font-size: 0.82rem; font-family: inherit; color: #333; width: 100px;
+    .edit-time-sel {
+      border: 1.5px solid #ffe082; border-radius: 8px; padding: 5px 6px;
+      font-size: 0.82rem; font-family: inherit; color: #333; background: white; cursor: pointer;
     }
-    .edit-time:focus { outline: none; border-color: #FFCC00; }
-    .edit-time:required:invalid { border-color: #e53935; }
+    .edit-time-sel:focus { outline: none; border-color: #FFCC00; }
+    .edit-time-sel-h { width: 62px; }
+    .edit-time-sel-m { width: 54px; }
     .time-sep { font-size: 0.82rem; color: #555; font-weight: 700; }
     .edit-check { width: 16px; height: 16px; cursor: pointer; }
     .save-btn {
@@ -573,6 +574,23 @@ function renderSchedule() {
 }
 
 // ADMIN: build edit form
+function timeSelectHTML(prefix, groupKey, giorno, value) {
+  const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
+  const mins = ['00', '15', '30', '45'];
+  const parts = value ? value.split(':') : ['', '00'];
+  const hVal = parts[0] || '';
+  const mVal = mins.includes(parts[1]) ? parts[1] : '00';
+  const hOpts = `<option value="">–</option>` + hours.map(h => `<option value="${h}"${h === hVal ? ' selected' : ''}>${h}</option>`).join('');
+  const mOpts = mins.map(m => `<option value="${m}"${m === mVal ? ' selected' : ''}>${m}</option>`).join('');
+  return `<select class="edit-time-sel edit-time-sel-h" id="${prefix}-h-${groupKey}-${giorno}">${hOpts}</select><span class="time-sep" style="font-size:0.78rem">:</span><select class="edit-time-sel edit-time-sel-m" id="${prefix}-m-${groupKey}-${giorno}">${mOpts}</select>`;
+}
+
+function getTimeFromSelects(prefix, groupKey, giorno) {
+  const hEl = document.getElementById(`${prefix}-h-${groupKey}-${giorno}`);
+  const mEl = document.getElementById(`${prefix}-m-${groupKey}-${giorno}`);
+  if (!hEl || !mEl) return '';
+  return hEl.value ? `${hEl.value}:${mEl.value}` : '';
+}
 function buildEditForm() {
   const sel = document.getElementById('edit-group-select');
   if (sel.innerHTML === '') {
@@ -621,27 +639,19 @@ function renderEditForm(groupKey) {
     row.innerHTML = `
       <label>${dayLabel}</label>
       <input type="checkbox" class="edit-check" id="chk-${groupKey}-${giorno}" ${isAttivo ? 'checked' : ''}/>
-      <input type="time" step="900" class="edit-time" id="orario-start-${groupKey}-${giorno}" value="${tStart}" ${isAttivo ? 'required' : ''}/>
+      ${timeSelectHTML('orario-start', groupKey, giorno, tStart)}
       <span class="time-sep">–</span>
-      <input type="time" step="900" class="edit-time" id="orario-end-${groupKey}-${giorno}" value="${tEnd}" ${isAttivo ? 'required' : ''}/>
+      ${timeSelectHTML('orario-end', groupKey, giorno, tEnd)}
       <input type="text" class="edit-input" id="nota-${groupKey}-${giorno}" placeholder="nota (opz.)" value="${info.nota || ''}"/>`;
     const chkEl = row.querySelector(`#chk-${groupKey}-${giorno}`);
-    const startEl = row.querySelector(`#orario-start-${groupKey}-${giorno}`);
-    const endEl = row.querySelector(`#orario-end-${groupKey}-${giorno}`);
-    chkEl.addEventListener('change', () => {
-      if (chkEl.checked) {
-        startEl.setAttribute('required', '');
-        endEl.setAttribute('required', '');
-      } else {
-        startEl.removeAttribute('required');
-        endEl.removeAttribute('required');
-      }
-    });
-    startEl.addEventListener('change', () => {
-      if (startEl.value) {
-        const [h, m] = startEl.value.split(':').map(Number);
-        const endH = (h + 1) % 24;
-        endEl.value = `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    const startHEl = row.querySelector(`#orario-start-h-${groupKey}-${giorno}`);
+    startHEl.addEventListener('change', () => {
+      const h = startHEl.value;
+      if (h) {
+        const endH = String((parseInt(h, 10) + 1) % 24).padStart(2, '0');
+        row.querySelector(`#orario-end-h-${groupKey}-${giorno}`).value = endH;
+        row.querySelector(`#orario-end-m-${groupKey}-${giorno}`).value =
+          row.querySelector(`#orario-start-m-${groupKey}-${giorno}`).value;
       }
     });
     sec.appendChild(row);
@@ -658,8 +668,8 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
   let hasError = false;
   ['lunedi','martedi','mercoledi','giovedi','venerdi','sabato'].forEach(giorno => {
     const chk = document.getElementById(`chk-${groupKey}-${giorno}`);
-    const tStart = document.getElementById(`orario-start-${groupKey}-${giorno}`).value;
-    const tEnd = document.getElementById(`orario-end-${groupKey}-${giorno}`).value;
+    const tStart = getTimeFromSelects('orario-start', groupKey, giorno);
+    const tEnd = getTimeFromSelects('orario-end', groupKey, giorno);
     const nota = document.getElementById(`nota-${groupKey}-${giorno}`).value.trim();
     if (chk.checked && (!tStart || !tEnd)) { hasError = true; }
     if (!chk.checked && (tStart || tEnd) && !(tStart && tEnd)) { hasError = true; }
