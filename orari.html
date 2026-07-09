@@ -655,10 +655,11 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
     const tEnd = document.getElementById(`orario-end-${groupKey}-${giorno}`).value;
     const nota = document.getElementById(`nota-${groupKey}-${giorno}`).value.trim();
     if (chk.checked && (!tStart || !tEnd)) { hasError = true; }
-    const orario = (tStart && tEnd) ? `${tStart}–${tEnd}` : (tStart || tEnd || '');
+    if (!chk.checked && (tStart || tEnd) && !(tStart && tEnd)) { hasError = true; }
+    const orario = (tStart && tEnd) ? `${tStart}–${tEnd}` : '';
     data[giorno] = { attivo: chk.checked, orario, nota };
   });
-  if (hasError) { showToast('⚠️ Inserisci l\'orario per tutti i giorni attivi'); return; }
+  if (hasError) { showToast('⚠️ Inserisci sia l\'inizio che la fine dell\'orario per i giorni attivi'); return; }
   ref.set(data)
     .then(() => showToast('✅ Orari salvati!'))
     .catch(() => showToast('❌ Errore nel salvataggio'));
