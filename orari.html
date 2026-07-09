@@ -360,6 +360,18 @@ let weekData = {};
 let defaultData = {};
 let activeFilter = 'all';
 let activeCat = 'all';
+(function() {
+  const savedCat = localStorage.getItem('basketCat');
+  if (savedCat && document.querySelector('.cat-btn[data-cat="' + CSS.escape(savedCat) + '"]')) {
+    activeCat = savedCat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === savedCat));
+  }
+  const savedTeam = localStorage.getItem('basketTeam');
+  if (savedTeam) {
+    const g = GROUPS.find(x => x.key === savedTeam);
+    if (g && (activeCat === 'all' || g.category === activeCat)) activeFilter = savedTeam;
+  }
+})();
 
 document.getElementById('week-label').textContent = (() => {
   const s = weekStart(currentWeekKey); const e = new Date(s); e.setDate(s.getDate()+6);
@@ -383,6 +395,7 @@ function buildFilterRow() {
   });
   row.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
     activeFilter = b.dataset.filter;
+    localStorage.setItem('basketTeam', activeFilter);
     buildFilterRow(); renderSchedule();
   }));
 }
@@ -687,6 +700,7 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
 document.querySelectorAll('.cat-btn').forEach(b => {
   b.addEventListener('click', () => {
     activeCat = b.dataset.cat;
+    localStorage.setItem('basketCat', activeCat);
     if (activeFilter !== 'all') {
       const g = GROUPS.find(x => x.key === activeFilter);
       if (g && g.category !== activeCat && activeCat !== 'all') activeFilter = 'all';
