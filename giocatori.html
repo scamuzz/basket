@@ -47,9 +47,22 @@
     .container { max-width: 540px; margin: 0 auto; padding: 16px 12px 64px; }
 
     /* FILTRI */
+    .cat-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;
+      margin-bottom: 10px; padding-bottom: 4px;
+    }
+    .cat-btn {
+      background: white; border: 2px solid #c5d5f7; border-radius: 20px;
+      padding: 6px; font-size: 0.74rem; font-weight: 700; color: #003399;
+      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
+      min-height: 42px; display: flex; align-items: center; justify-content: center; line-height: 1.2;
+    }
+    .cat-btn.active, .cat-btn:hover {
+      background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
+    }
     .filter-row {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 8px;
-      margin-bottom: 6px; padding-bottom: 4px;
+      margin-bottom: 18px; padding-bottom: 4px;
     }
     .filter-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
@@ -175,12 +188,12 @@
 <div class="container">
 
   <!-- FILTRO CATEGORIA -->
-  <div class="filter-row" id="cat-row">
-    <button class="filter-btn active" data-cat="tutti">Tutte</button>
-    <button class="filter-btn" data-cat="Femminili">♀ Femminili</button>
-    <button class="filter-btn" data-cat="Senior">♂ Senior</button>
-    <button class="filter-btn" data-cat="Giovanili">🏀 Giovanili</button>
-    <button class="filter-btn" data-cat="Minibasket">⭐ Mini</button>
+  <div class="cat-row" id="cat-row">
+    <button class="cat-btn active" data-cat="tutti">Tutte</button>
+    <button class="cat-btn" data-cat="Femminili">♀ Femminili</button>
+    <button class="cat-btn" data-cat="Senior">♂ Senior</button>
+    <button class="cat-btn" data-cat="Giovanili">🏀 Giovanili</button>
+    <button class="cat-btn" data-cat="Minibasket">⭐ Mini</button>
   </div>
   <!-- FILTRO SQUADRA -->
   <div class="filter-row" id="group-row"></div>
@@ -266,7 +279,7 @@ function buildGroupRow() {
   row.innerHTML = '';
   const visibleGroups = activeCat === 'tutti' ? GROUPS : GROUPS.filter(g => g.category === activeCat);
   if (visibleGroups.length <= 1) { row.style.display = 'none'; return; }
-  row.style.display = 'flex';
+  row.style.display = 'grid';
   const allBtn = document.createElement('button');
   allBtn.className = 'filter-btn' + (activeGroup === 'tutti' ? ' active' : '');
   allBtn.dataset.group = 'tutti'; allBtn.textContent = 'Tutte';
@@ -369,10 +382,10 @@ function render() {
 }
 
 // Filtri categoria
-document.querySelectorAll('#cat-row .filter-btn').forEach(b => {
+document.querySelectorAll('#cat-row .cat-btn').forEach(b => {
   b.addEventListener('click', () => {
     activeCat = b.dataset.cat; activeGroup = 'tutti';
-    document.querySelectorAll('#cat-row .filter-btn').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('#cat-row .cat-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active'); render();
   });
 });
