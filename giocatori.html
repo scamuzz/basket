@@ -48,13 +48,13 @@
 
     /* FILTRI */
     .filter-row {
-      display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
-      padding-bottom: 4px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 8px;
+      margin-bottom: 6px; padding-bottom: 4px;
     }
     .filter-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 6px 12px; font-size: 0.72rem; font-weight: 700; color: #003399;
-      cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
+      padding: 6px; font-size: 0.72rem; font-weight: 700; color: #003399;
+      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
     }
     .filter-btn.active, .filter-btn:hover {
       background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
@@ -175,11 +175,11 @@
 
   <!-- FILTRO CATEGORIA -->
   <div class="filter-row" id="cat-row">
-    <button class="filter-btn active" data-cat="tutti">Tutte le squadre</button>
+    <button class="filter-btn active" data-cat="tutti">Tutte</button>
     <button class="filter-btn" data-cat="Femminili">♀ Femminili</button>
     <button class="filter-btn" data-cat="Senior">♂ Senior</button>
     <button class="filter-btn" data-cat="Giovanili">🏀 Giovanili</button>
-    <button class="filter-btn" data-cat="Minibasket">⭐ Minibasket</button>
+    <button class="filter-btn" data-cat="Minibasket">⭐ Mini</button>
   </div>
   <!-- FILTRO SQUADRA -->
   <div class="filter-row" id="group-row"></div>
