@@ -309,6 +309,10 @@
         <input type="text" class="form-input" id="f-descrizione" placeholder="es. Palestra Comunale…" maxlength="120"/>
       </div>
     </div>
+    <div class="form-group">
+      <label>Note (opz.)</label>
+      <textarea class="form-input" id="f-note" placeholder="Aggiungi note o informazioni extra…" maxlength="300" rows="3" style="resize:vertical;"></textarea>
+    </div>
     <div class="pub-btn-row">
       <button class="pub-btn" id="add-btn">➕ Aggiungi</button>
       <button class="cancel-edit-btn" id="cancel-edit-btn">✕ Annulla modifica</button>
@@ -452,6 +456,10 @@ function render() {
         ${item.luogo==='trasferta' && item.citta ? `<div class="partita-trasferta-info">📍 ${item.indirizzo ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.citta+', '+item.indirizzo)}" target="_blank" rel="noopener noreferrer">${esc(item.citta)}, ${esc(item.indirizzo)}</a>` : esc(item.citta)}</div>` : ''}`;
     }
 
+    if (item.note) {
+      bodyHtml += `<div class="partita-descrizione" style="margin-top:6px;">📝 ${esc(item.note)}</div>`;
+    }
+
     // Convocati
     const conv = allConvocati[id] || {};
     const groupKey = item.campionato;
@@ -573,6 +581,7 @@ function loadEditForm(id) {
   document.getElementById('f-indirizzo').value = item.indirizzo || '';
   document.getElementById('f-nome-evento').value = item.nomeEvento || '';
   document.getElementById('f-descrizione').value = item.descrizione || '';
+  document.getElementById('f-note').value = item.note || '';
   toggleTipoFields();
   document.getElementById('add-btn').textContent = '💾 Salva modifica';
   document.getElementById('cancel-edit-btn').style.display = 'flex';
@@ -619,6 +628,9 @@ document.getElementById('add-btn').addEventListener('click', () => {
     if (desc) item.descrizione = desc;
   }
 
+  const noteVal = document.getElementById('f-note').value.trim();
+  if (noteVal) item.note = noteVal;
+
   const op = editingId ? calRef.child(editingId).update(item) : calRef.push(item);
   op.then(() => {
     showToast(editingId ? '✅ Partita aggiornata!' : '✅ Partita aggiunta!');
@@ -630,7 +642,7 @@ document.getElementById('cancel-edit-btn').addEventListener('click', resetForm);
 
 function resetForm() {
   editingId = null;
-  ['f-data','f-ora','f-avversario','f-risultato','f-citta','f-indirizzo','f-nome-evento','f-descrizione']
+  ['f-data','f-ora','f-avversario','f-risultato','f-citta','f-indirizzo','f-nome-evento','f-descrizione','f-note']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('f-tipo').value = 'partita';
   document.getElementById('f-campionato').value = 'prom_f';
