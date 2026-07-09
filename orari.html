@@ -43,14 +43,13 @@
 
     /* FILTRO CATEGORIA */
     .cat-row {
-      display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto;
-      padding-bottom: 4px; scrollbar-width: none;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;
+      margin-bottom: 10px; padding-bottom: 4px;
     }
-    .cat-row::-webkit-scrollbar { display: none; }
     .cat-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 6px 14px; font-size: 0.74rem; font-weight: 700; color: #003399;
-      cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
+      padding: 6px; font-size: 0.74rem; font-weight: 700; color: #003399;
+      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
     }
     .cat-btn.active, .cat-btn:hover {
       background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
@@ -58,13 +57,13 @@
 
     /* FILTRO SQUADRA */
     .filter-row {
-      display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
-      padding-bottom: 4px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 8px;
+      margin-bottom: 18px; padding-bottom: 4px;
     }
     .filter-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 6px 12px; font-size: 0.72rem; font-weight: 700; color: #003399;
-      cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
+      padding: 6px; font-size: 0.72rem; font-weight: 700; color: #003399;
+      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
     }
     .filter-btn.active, .filter-btn:hover {
       background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
@@ -252,7 +251,7 @@
     <button class="cat-btn" data-cat="Femminili">♀ Femminili</button>
     <button class="cat-btn" data-cat="Senior">♂ Senior</button>
     <button class="cat-btn" data-cat="Giovanili">🏀 Giovanili</button>
-    <button class="cat-btn" data-cat="Minibasket">⭐ Minibasket</button>
+    <button class="cat-btn" data-cat="Minibasket">⭐ Mini</button>
   </div>
 
   <!-- FILTRO SQUADRA -->
@@ -371,7 +370,7 @@ function buildFilterRow() {
   row.innerHTML = '';
   const btn0 = document.createElement('button');
   btn0.className = 'filter-btn' + (activeFilter === 'all' ? ' active' : '');
-  btn0.dataset.filter = 'all'; btn0.textContent = 'Tutte le squadre';
+  btn0.dataset.filter = 'all'; btn0.textContent = 'Tutte';
   row.appendChild(btn0);
   const visible = activeCat === 'all' ? GROUPS : GROUPS.filter(g => g.category === activeCat);
   visible.forEach(g => {

@@ -48,13 +48,13 @@
 
     /* FILTRI */
     .filter-row {
-      display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
-      padding-bottom: 4px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;
+      margin-bottom: 6px; padding-bottom: 4px;
     }
     .filter-btn {
       background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 7px 12px; font-size: 0.72rem; font-weight: 700; color: #003399;
-      cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: inherit;
+      padding: 6px; font-size: 0.72rem; font-weight: 700; color: #003399;
+      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
     }
     .filter-btn.active, .filter-btn:hover {
       background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
