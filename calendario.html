@@ -398,6 +398,13 @@ function showToast(msg) {
 
 let allData = {}, allPlayers = {}, allConvocati = {};
 let activeFilter = 'tutti', editingId = null;
+(function() {
+  const saved = localStorage.getItem('basketTeam');
+  if (saved && document.querySelector('.filter-btn[data-filter="' + saved + '"]')) {
+    activeFilter = saved;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === saved));
+  }
+})();
 
 db.ref('.info/connected').on('value', snap => {
   const dot = document.getElementById('sync-dot'), lbl = document.getElementById('sync-label');
@@ -656,6 +663,7 @@ function resetForm() {
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     activeFilter = btn.dataset.filter;
+    localStorage.setItem('basketTeam', activeFilter);
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active'); render();
   });

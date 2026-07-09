@@ -266,6 +266,18 @@ function showToast(msg) {
 let allPlayers = {};
 let activeCat = 'tutti';
 let activeGroup = 'tutti';
+(function() {
+  const savedCat = localStorage.getItem('basketCat');
+  if (savedCat && document.querySelector('#cat-row .cat-btn[data-cat="' + savedCat + '"]')) {
+    activeCat = savedCat;
+    document.querySelectorAll('#cat-row .cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === savedCat));
+  }
+  const savedTeam = localStorage.getItem('basketTeam');
+  if (savedTeam) {
+    const g = GROUPS.find(x => x.key === savedTeam);
+    if (g && (activeCat === 'tutti' || g.category === activeCat)) activeGroup = savedTeam;
+  }
+})();
 
 db.ref('.info/connected').on('value', snap => {
   const dot = document.getElementById('sync-dot'), lbl = document.getElementById('sync-label');
@@ -292,6 +304,7 @@ function buildGroupRow() {
   });
   row.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
     activeGroup = b.dataset.group;
+    localStorage.setItem('basketTeam', activeGroup);
     buildGroupRow(); render();
   }));
 }
@@ -385,6 +398,8 @@ function render() {
 document.querySelectorAll('#cat-row .cat-btn').forEach(b => {
   b.addEventListener('click', () => {
     activeCat = b.dataset.cat; activeGroup = 'tutti';
+    localStorage.setItem('basketCat', activeCat);
+    localStorage.setItem('basketTeam', 'tutti');
     document.querySelectorAll('#cat-row .cat-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active'); render();
   });
