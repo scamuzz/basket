@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏀</text></svg>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>🏀 A.S.D. Visconti Basket Brignano</title>
+  <title>A.S.D. Visconti Basket Brignano</title>
   <style>
     :root { --bg: #f0f5ff; --blue: #003399; --yellow: #FFCC00; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,15 +30,15 @@
     }
     .particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
     .particle {
-      position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,0.15); animation: floatUp linear infinite;
+      position: absolute; line-height: 1; user-select: none;
+      animation: floatUp linear infinite;
     }
-    .particle:nth-child(1){width:8px;height:8px;left:10%;bottom:0;animation-duration:6s;animation-delay:0s}
-    .particle:nth-child(2){width:5px;height:5px;left:25%;bottom:0;animation-duration:4.5s;animation-delay:1s}
-    .particle:nth-child(3){width:10px;height:10px;left:42%;bottom:0;animation-duration:7s;animation-delay:2s}
-    .particle:nth-child(4){width:6px;height:6px;left:60%;bottom:0;animation-duration:5s;animation-delay:0.5s}
-    .particle:nth-child(5){width:12px;height:12px;left:75%;bottom:0;animation-duration:8s;animation-delay:1.5s}
-    .particle:nth-child(6){width:4px;height:4px;left:88%;bottom:0;animation-duration:4s;animation-delay:3s}
+    .particle:nth-child(1){font-size:16px;left:10%;bottom:0;animation-duration:6s;animation-delay:0s}
+    .particle:nth-child(2){font-size:12px;left:25%;bottom:0;animation-duration:4.5s;animation-delay:1s}
+    .particle:nth-child(3){font-size:20px;left:42%;bottom:0;animation-duration:7s;animation-delay:2s}
+    .particle:nth-child(4){font-size:14px;left:60%;bottom:0;animation-duration:5s;animation-delay:0.5s}
+    .particle:nth-child(5){font-size:22px;left:75%;bottom:0;animation-duration:8s;animation-delay:1.5s}
+    .particle:nth-child(6){font-size:10px;left:88%;bottom:0;animation-duration:4s;animation-delay:3s}
     @keyframes floatUp {
       0%{transform:translateY(0) scale(1);opacity:0.8}
       100%{transform:translateY(-120px) scale(0.5);opacity:0}
@@ -129,8 +129,8 @@
 
 <div class="header">
   <div class="particles">
-    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle">🏀</div><div class="particle">🏀</div><div class="particle">🏀</div>
+    <div class="particle">🏀</div><div class="particle">🏀</div><div class="particle">🏀</div>
   </div>
 <!--  <span class="logo"><span class="logo-ring">🏀</span></span> -->
   <span class="logo"> <img src="Visconti-Logo.png" alt="A.S.D. Visconti Basket Brignano" style="max-width: 200px; width: 100%; height: auto;"> </span>
