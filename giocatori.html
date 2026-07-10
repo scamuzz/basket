@@ -179,7 +179,7 @@
     <div class="filter-row">
       <label class="filter-label">Categoria:</label>
       <select id="cat-select" class="team-select">
-        <option value="">— Tutte le categorie —</option>
+        <option value="">— Seleziona una categoria —</option>
         <option value="Femminili">⛹️‍♀️ Femminili</option>
         <option value="Senior">⛹️‍♂️ Senior</option>
         <option value="Giovanili">🏀 Giovanili</option>
@@ -313,6 +313,11 @@ function render() {
   const container = document.getElementById('players-container');
   container.innerHTML = '';
   const admin = isManager();
+
+  if (!document.getElementById('cat-select').value) {
+    container.innerHTML = '<div class="no-items">👆 Seleziona una categoria per vedere le squadre</div>';
+    return;
+  }
 
   if (activeGroup === 'tutti') {
     container.innerHTML = '<div class="no-items">👆 Seleziona una squadra per vedere i giocatori</div>';

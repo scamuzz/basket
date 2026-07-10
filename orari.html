@@ -236,14 +236,14 @@
     <div class="filter-row">
       <label class="filter-label">Categoria:</label>
       <select id="cat-select" class="team-select">
-        <option value="">— Tutte le categorie —</option>
+        <option value="">— Seleziona una categoria —</option>
         <option value="Femminili">⛹️‍♀️ Femminili</option>
         <option value="Senior">⛹️‍♂️ Senior</option>
         <option value="Giovanili">🏀 Giovanili</option>
         <option value="Minibasket">⭐ Minibasket</option>
       </select>
     </div>
-    <div class="filter-row">
+    <div class="filter-row" id="team-row" style="display:none">
       <label class="filter-label">Squadra:</label>
       <select id="team-select" class="team-select">
         <option value="all">— Tutte le squadre —</option>
@@ -377,6 +377,7 @@ function populateTeamSelect(catValue) {
   document.getElementById('cat-select').value = savedCat;
   populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeFilter;
+  document.getElementById('team-row').style.display = savedCat ? 'flex' : 'none';
 })();
 
 document.getElementById('week-label').textContent = (() => {
@@ -388,6 +389,7 @@ document.getElementById('cat-select').addEventListener('change', function() {
   populateTeamSelect(this.value);
   activeFilter = 'all';
   document.getElementById('team-select').value = 'all';
+  document.getElementById('team-row').style.display = this.value ? 'flex' : 'none';
   localStorage.setItem('basketTeam', activeFilter);
   renderSchedule();
 });
@@ -425,6 +427,12 @@ function mergeWithDefaults(weekObj, gruppo) {
 function renderSchedule() {
   const container = document.getElementById('schedule-container');
   container.innerHTML = '';
+
+  const catSel = document.getElementById('cat-select').value;
+  if (!catSel) {
+    container.innerHTML = '<div class="select-prompt">👆 Seleziona una categoria per vedere gli orari</div>';
+    return;
+  }
 
   if (activeFilter === 'all') {
     container.innerHTML = '<div class="select-prompt">👆 Seleziona una squadra per vedere gli orari</div>';

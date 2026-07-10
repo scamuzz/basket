@@ -225,8 +225,7 @@
   <!-- FILTRI -->
   <div class="filter-wrap">
     <select id="team-select" class="team-select">
-      <option value="tutti">🌐 Tutti</option>
-      <option value="generale">📰 Generale</option>
+      <option value="generale">📰 Notizie per tutti</option>
       <optgroup label="♀ Femminili">
         <option value="prom_f">Promozione ♀</option>
         <option value="u17_f">Under 17 ♀</option>
@@ -294,7 +293,7 @@ const db = firebase.database();
 
 // Group definitions for news
 const GROUP_DEFS = [
-  { key: 'generale', label: 'Generale',     icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale' },
+  { key: 'generale', label: 'Notizie per tutti', icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale' },
   { key: 'prom_f',   label: 'Promozione ♀', icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
   { key: 'u17_f',    label: 'Under 17 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
   { key: 'u15_f',    label: 'Under 15 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
@@ -321,10 +320,10 @@ GROUP_DEFS.forEach(g => {
 
 let allData = {};
 GROUP_DEFS.forEach(g => { allData[g.key] = {}; });
-let activeFilter = 'tutti';
+let activeFilter = 'generale';
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  const validKeys = GROUP_DEFS.map(g => g.key).concat(['tutti']);
+  const validKeys = GROUP_DEFS.map(g => g.key);
   if (saved && validKeys.includes(saved)) activeFilter = saved;
   document.getElementById('team-select').value = activeFilter;
 })();
