@@ -189,13 +189,13 @@
       <select class="form-input" id="news-group">
         <option value="generale">📰 Tutte le squadre (generale)</option>
         <optgroup label="Femminili">
-          <option value="prom_f">Promozione ♀</option>
-          <option value="u17_f">Under 17 ♀</option>
-          <option value="u15_f">Under 15 ♀</option>
+          <option value="prom_f">Promozione ⛹️‍♀️</option>
+          <option value="u17_f">Under 17 ⛹️‍♀️</option>
+          <option value="u15_f">Under 15 ⛹️‍♀️</option>
         </optgroup>
         <optgroup label="Senior">
-          <option value="dr1">Div. Reg. 1 ♂</option>
-          <option value="dr4">Div. Reg. 4 ♂</option>
+          <option value="dr1">Div. Reg. 1 ⛹️‍♂️</option>
+          <option value="dr4">Div. Reg. 4 ⛹️‍♂️</option>
         </optgroup>
         <optgroup label="Giovanili">
           <option value="a2010">2010</option>
@@ -232,8 +232,8 @@
       <label class="filter-label">Categoria:</label>
       <select id="cat-select" class="team-select">
         <option value="">— Seleziona una categoria —</option>
-        <option value="Femminili">♀ Femminili</option>
-        <option value="Senior">♂ Senior</option>
+        <option value="Femminili">⛹️‍♀️ Femminili</option>
+        <option value="Senior">⛹️‍♂️ Senior</option>
         <option value="Giovanili">🏀 Giovanili</option>
         <option value="Minibasket">⭐ Minibasket</option>
       </select>
@@ -286,11 +286,11 @@ const db = firebase.database();
 // Group definitions for news
 const GROUP_DEFS = [
   { key: 'generale', label: 'Notizie per tutti', icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale' },
-  { key: 'prom_f',   label: 'Promozione ♀', icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
-  { key: 'u17_f',    label: 'Under 17 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
-  { key: 'u15_f',    label: 'Under 15 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
-  { key: 'dr1',      label: 'DR1 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
-  { key: 'dr4',      label: 'DR4 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
+  { key: 'prom_f',   label: 'Promozione ⛹️‍♀️', icon: '⛹️‍♀️', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'u17_f',    label: 'Under 17 ⛹️‍♀️',   icon: '⛹️‍♀️', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'u15_f',    label: 'Under 15 ⛹️‍♀️',   icon: '⛹️‍♀️', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'dr1',      label: 'DR1 ⛹️‍♂️',         icon: '⛹️‍♂️', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
+  { key: 'dr4',      label: 'DR4 ⛹️‍♂️',         icon: '⛹️‍♂️', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
   { key: 'a2010',    label: '2010',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
   { key: 'a2011',    label: '2011',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
   { key: 'a2012',    label: '2012',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
@@ -370,17 +370,13 @@ function renderNews() {
   let entries = [];
 
   const catSel = document.getElementById('cat-select').value;
-  if (!catSel) {
-    container.innerHTML = '<div class="select-prompt">👆 Seleziona una categoria per vedere le comunicazioni</div>';
-    return;
+  const showTeamNews = catSel && activeFilter !== 'all';
+
+  if (showTeamNews) {
+    Object.entries(allData[activeFilter]).forEach(([id, item]) => {
+      entries.push({ id, item, group: activeFilter });
+    });
   }
-  if (activeFilter === 'all') {
-    container.innerHTML = '<div class="select-prompt">👆 Seleziona una squadra per vedere le comunicazioni</div>';
-    return;
-  }
-  Object.entries(allData[activeFilter]).forEach(([id, item]) => {
-    entries.push({ id, item, group: activeFilter });
-  });
   Object.entries(allData['generale']).forEach(([id, item]) => {
     entries.push({ id, item, group: 'generale' });
   });
