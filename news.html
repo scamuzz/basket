@@ -101,6 +101,8 @@
 
     /* FILTER BAR */
     .filter-wrap { margin-bottom: 10px; }
+    .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .filter-label { font-size: 0.85rem; font-weight: 700; color: #555; white-space: nowrap; min-width: 80px; }
     .team-select {
       width: 100%; padding: 10px 14px; border: 2px solid #c5d5f7; border-radius: 12px;
       font-size: 0.9rem; font-weight: 600; color: #003399; background: white;
@@ -110,6 +112,8 @@
       padding-right: 32px;
     }
     .team-select:focus { outline: none; border-color: #003399; box-shadow: 0 0 0 3px rgba(0,51,153,0.12); }
+    .select-prompt { text-align: center; padding: 24px 10px; background: white; border-radius: 16px;
+      border: 2px dashed #c5d5f7; color: #90a4ae; font-size: 0.88rem; font-style: italic; }
 
     /* GROUP BADGE */
     .group-badge {
@@ -224,34 +228,22 @@
 
   <!-- FILTRI -->
   <div class="filter-wrap">
-    <select id="team-select" class="team-select">
-      <option value="generale">📰 Notizie per tutti</option>
-      <optgroup label="♀ Femminili">
-        <option value="prom_f">Promozione ♀</option>
-        <option value="u17_f">Under 17 ♀</option>
-        <option value="u15_f">Under 15 ♀</option>
-      </optgroup>
-      <optgroup label="♂ Senior">
-        <option value="dr1">DR1 ♂</option>
-        <option value="dr4">DR4 ♂</option>
-      </optgroup>
-      <optgroup label="🏀 Giovanili">
-        <option value="a2010">2010</option>
-        <option value="a2011">2011</option>
-        <option value="a2012">2012</option>
-        <option value="a2013">2013</option>
-        <option value="a2014">2014</option>
-        <option value="a2015">2015</option>
-      </optgroup>
-      <optgroup label="⭐ Minibasket">
-        <option value="m2016">Mini 2016</option>
-        <option value="m2017">Mini 2017</option>
-        <option value="m2018">Mini 2018</option>
-        <option value="m2019">Mini 2019</option>
-        <option value="m2021">Mini 2020-21</option>
-        <option value="m2023">Mini 2022-23</option>
-      </optgroup>
-    </select>
+    <div class="filter-row">
+      <label class="filter-label">Categoria:</label>
+      <select id="cat-select" class="team-select">
+        <option value="">— Seleziona una categoria —</option>
+        <option value="Femminili">♀ Femminili</option>
+        <option value="Senior">♂ Senior</option>
+        <option value="Giovanili">🏀 Giovanili</option>
+        <option value="Minibasket">⭐ Minibasket</option>
+      </select>
+    </div>
+    <div class="filter-row" id="team-row" style="display:none">
+      <label class="filter-label">Squadra:</label>
+      <select id="team-select" class="team-select">
+        <option value="all">— Seleziona una squadra —</option>
+      </select>
+    </div>
   </div>
 
   <div class="section-title">📢 Comunicazioni e Avvisi</div>
@@ -294,38 +286,62 @@ const db = firebase.database();
 // Group definitions for news
 const GROUP_DEFS = [
   { key: 'generale', label: 'Notizie per tutti', icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale' },
-  { key: 'prom_f',   label: 'Promozione ♀', icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
-  { key: 'u17_f',    label: 'Under 17 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
-  { key: 'u15_f',    label: 'Under 15 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm' },
-  { key: 'dr1',      label: 'DR1 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc' },
-  { key: 'dr4',      label: 'DR4 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc' },
-  { key: 'a2010',    label: '2010',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'a2011',    label: '2011',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'a2012',    label: '2012',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'a2013',    label: '2013',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'a2014',    label: '2014',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'a2015',    label: '2015',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann' },
-  { key: 'm2016',    label: 'Mini 2016',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
-  { key: 'm2017',    label: 'Mini 2017',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
-  { key: 'm2018',    label: 'Mini 2018',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
-  { key: 'm2019',    label: 'Mini 2019',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
-  { key: 'm2021',    label: 'Mini 2020-21',   icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
-  { key: 'm2023',    label: 'Mini 2022-23',   icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini' },
+  { key: 'prom_f',   label: 'Promozione ♀', icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'u17_f',    label: 'Under 17 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'u15_f',    label: 'Under 15 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
+  { key: 'dr1',      label: 'DR1 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
+  { key: 'dr4',      label: 'DR4 ♂',         icon: '🏀', badgeClass: 'badge-masc',     cardClass: 'cat-masc', category: 'Senior' },
+  { key: 'a2010',    label: '2010',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'a2011',    label: '2011',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'a2012',    label: '2012',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'a2013',    label: '2013',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'a2014',    label: '2014',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'a2015',    label: '2015',           icon: '🏀', badgeClass: 'badge-ann',      cardClass: 'cat-ann', category: 'Giovanili' },
+  { key: 'm2016',    label: 'Mini 2016',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
+  { key: 'm2017',    label: 'Mini 2017',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
+  { key: 'm2018',    label: 'Mini 2018',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
+  { key: 'm2019',    label: 'Mini 2019',      icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
+  { key: 'm2021',    label: 'Mini 2020-21',   icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
+  { key: 'm2023',    label: 'Mini 2022-23',   icon: '⭐', badgeClass: 'badge-mini',     cardClass: 'cat-mini', category: 'Minibasket' },
 ];
 
 const GROUPS = {};
 GROUP_DEFS.forEach(g => {
   GROUPS[g.key] = { ...g, ref: db.ref(`basket/news/${g.key}`) };
 });
+const SELECTABLE_GROUPS = GROUP_DEFS.filter(g => g.key !== 'generale');
 
 let allData = {};
 GROUP_DEFS.forEach(g => { allData[g.key] = {}; });
-let activeFilter = 'generale';
+let activeFilter = 'all';
+
+function populateTeamSelect(catValue) {
+  const sel = document.getElementById('team-select');
+  sel.innerHTML = '<option value="all">— Seleziona una squadra —</option>';
+  const groups = catValue ? SELECTABLE_GROUPS.filter(g => g.category === catValue) : [];
+  groups.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.key;
+    opt.textContent = g.label;
+    sel.appendChild(opt);
+  });
+}
+
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  const validKeys = GROUP_DEFS.map(g => g.key);
-  if (saved && validKeys.includes(saved)) activeFilter = saved;
+  const validKeys = ['all', ...SELECTABLE_GROUPS.map(g => g.key)];
+  if (saved === 'generale') {
+    activeFilter = 'all';
+    localStorage.setItem('basketTeam', 'all');
+  } else if (saved && validKeys.includes(saved)) {
+    activeFilter = saved;
+  }
+  const activeGroup = GROUP_DEFS.find(g => g.key === activeFilter);
+  const savedCat = (activeFilter === 'all' || !activeGroup) ? '' : activeGroup.category;
+  document.getElementById('cat-select').value = savedCat;
+  populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeFilter;
+  document.getElementById('team-row').style.display = savedCat ? 'flex' : 'none';
 })();
 
 function isManager() { return localStorage.getItem('basketManager') === '1'; }
@@ -353,21 +369,21 @@ function renderNews() {
   const container = document.getElementById('news-container');
   let entries = [];
 
-  if (activeFilter === 'tutti') {
-    GROUP_DEFS.forEach(({ key }) => {
-      Object.entries(allData[key]).forEach(([id, item]) => { entries.push({ id, item, group: key }); });
-    });
-  } else {
-    Object.entries(allData[activeFilter]).forEach(([id, item]) => {
-      entries.push({ id, item, group: activeFilter });
-    });
-    // Show also "generale" news when a specific team is selected
-    if (activeFilter !== 'generale') {
-      Object.entries(allData['generale']).forEach(([id, item]) => {
-        entries.push({ id, item, group: 'generale' });
-      });
-    }
+  const catSel = document.getElementById('cat-select').value;
+  if (!catSel) {
+    container.innerHTML = '<div class="select-prompt">👆 Seleziona una categoria per vedere le comunicazioni</div>';
+    return;
   }
+  if (activeFilter === 'all') {
+    container.innerHTML = '<div class="select-prompt">👆 Seleziona una squadra per vedere le comunicazioni</div>';
+    return;
+  }
+  Object.entries(allData[activeFilter]).forEach(([id, item]) => {
+    entries.push({ id, item, group: activeFilter });
+  });
+  Object.entries(allData['generale']).forEach(([id, item]) => {
+    entries.push({ id, item, group: 'generale' });
+  });
 
   entries.sort((a, b) => (b.item.data || '').localeCompare(a.item.data || ''));
 
@@ -380,7 +396,7 @@ function renderNews() {
     const g = GROUPS[group];
     const d = new Date(item.data);
     const dateStr = isNaN(d) ? item.data : d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
-    const badgeHtml = (activeFilter === 'tutti' || (activeFilter !== 'generale' && group === 'generale'))
+    const badgeHtml = (group === 'generale')
       ? `<span class="group-badge ${esc(g.badgeClass)}">${g.icon} ${esc(g.label)}</span>`
       : '';
     const card = document.createElement('div');
@@ -407,6 +423,15 @@ function renderNews() {
 }
 
 // Filtri
+document.getElementById('cat-select').addEventListener('change', function() {
+  populateTeamSelect(this.value);
+  activeFilter = 'all';
+  document.getElementById('team-select').value = 'all';
+  document.getElementById('team-row').style.display = this.value ? 'flex' : 'none';
+  localStorage.setItem('basketTeam', activeFilter);
+  renderNews();
+});
+
 document.getElementById('team-select').addEventListener('change', function() {
   activeFilter = this.value;
   localStorage.setItem('basketTeam', activeFilter);
