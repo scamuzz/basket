@@ -476,21 +476,24 @@ const pinOverlay = document.getElementById('pin-overlay');
 const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
-const FORM_FOCUS_DELAY = 100; // attende il rendering del form prima del focus
+const addCategoriaInput = document.getElementById('add-categoria');
+const FOCUS_DELAY_MS = 100; // attende il rendering del form prima del focus
+const TOGGLE_ADD_FORM_OPEN_TEXT = '➕ Nuova Squadra';
+const TOGGLE_ADD_FORM_CLOSE_TEXT = '✖ Chiudi form';
 
 function closeAddTeamForm() {
   addTeamForm.classList.remove('open');
-  toggleAddFormBtn.textContent = '➕ Nuova Squadra';
+  toggleAddFormBtn.textContent = TOGGLE_ADD_FORM_OPEN_TEXT;
   toggleAddFormBtn.setAttribute('aria-expanded', 'false');
   addTeamForm.setAttribute('aria-hidden', 'true');
 }
 
 toggleAddFormBtn.addEventListener('click', () => {
   const isOpen = addTeamForm.classList.toggle('open');
-  toggleAddFormBtn.textContent = isOpen ? '✖ Chiudi form' : '➕ Nuova Squadra';
+  toggleAddFormBtn.textContent = isOpen ? TOGGLE_ADD_FORM_CLOSE_TEXT : TOGGLE_ADD_FORM_OPEN_TEXT;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), FORM_FOCUS_DELAY);
+  if (isOpen) setTimeout(() => addCategoriaInput.focus(), FOCUS_DELAY_MS);
   else toggleAddFormBtn.focus();
 });
 
