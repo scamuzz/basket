@@ -476,6 +476,7 @@ const pinOverlay = document.getElementById('pin-overlay');
 const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
+const FORM_FOCUS_DELAY = 100;
 
 function closeAddTeamForm() {
   addTeamForm.classList.remove('open');
@@ -485,7 +486,7 @@ function closeAddTeamForm() {
 toggleAddFormBtn.addEventListener('click', () => {
   const isOpen = addTeamForm.classList.toggle('open');
   toggleAddFormBtn.textContent = isOpen ? '✖ Chiudi form' : '➕ Nuova Squadra';
-  if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), 100);
+  if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), FORM_FOCUS_DELAY);
 });
 
 function updatePinBtn() { pinBtn.textContent = isManager() ? '🔐' : '🔒'; }
