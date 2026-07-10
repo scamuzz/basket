@@ -189,7 +189,7 @@
   <!-- PANNELLO AGGIUNTA (solo admin) -->
   <div class="manager-panel" id="manager-panel">
     <button class="new-team-btn" id="toggle-add-form-btn" type="button" aria-expanded="false" aria-controls="add-team-form">➕ Nuova Squadra</button>
-    <div class="add-team-form" id="add-team-form" role="region" aria-hidden="true">
+    <div class="add-team-form" id="add-team-form" role="region" aria-hidden="true" aria-labelledby="toggle-add-form-btn">
       <h3>➕ Aggiungi una squadra</h3>
       <div class="form-group">
         <label>Categoria <span style="color:#e53935">*</span></label>
@@ -476,7 +476,7 @@ const pinOverlay = document.getElementById('pin-overlay');
 const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
-const FORM_FOCUS_DELAY = 100;
+const FORM_FOCUS_DELAY = 100; // attende il rendering del form prima del focus
 
 function closeAddTeamForm() {
   addTeamForm.classList.remove('open');
@@ -491,6 +491,7 @@ toggleAddFormBtn.addEventListener('click', () => {
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
   if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), FORM_FOCUS_DELAY);
+  else toggleAddFormBtn.focus();
 });
 
 function updatePinBtn() { pinBtn.textContent = isManager() ? '🔐' : '🔒'; }
