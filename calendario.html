@@ -346,7 +346,15 @@
         <option value="a2014">2014</option>
         <option value="a2015">2015</option>
       </optgroup>
-      <option value="mini">⭐ Minibasket</option>
+      <optgroup label="⭐ Minibasket">
+        <option value="mini">— Tutto il Minibasket —</option>
+        <option value="m2016">Mini 2016</option>
+        <option value="m2017">Mini 2017</option>
+        <option value="m2018">Mini 2018</option>
+        <option value="m2019">Mini 2019</option>
+        <option value="m2021">Mini 2020-21</option>
+        <option value="m2023">Mini 2022-23</option>
+      </optgroup>
       <option value="evento">🎉 Evento</option>
     </select>
   </div>
@@ -415,7 +423,7 @@ let allData = {}, allPlayers = {}, allConvocati = {};
 let activeFilter = 'tutti', editingId = null;
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  const validKeys = ['tutti','prom_f','u17_f','u15_f','dr1','dr4','a2010','a2011','a2012','a2013','a2014','a2015','mini','evento'];
+  const validKeys = ['tutti','prom_f','u17_f','u15_f','dr1','dr4','a2010','a2011','a2012','a2013','a2014','a2015','mini','m2016','m2017','m2018','m2019','m2021','m2023','evento'];
   if (saved && validKeys.includes(saved)) activeFilter = saved;
   document.getElementById('team-select').value = activeFilter;
 })();
