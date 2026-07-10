@@ -477,22 +477,22 @@ const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
 const addCategoriaInput = document.getElementById('add-categoria');
-const TOGGLE_ADD_FORM_OPEN_TEXT = 'Nuova Squadra';
-const TOGGLE_ADD_FORM_CLOSE_TEXT = 'Chiudi form';
+const toggleAddFormOpenText = 'Nuova Squadra';
+const toggleAddFormCloseText = 'Chiudi form';
 
 function closeAddTeamForm() {
   addTeamForm.classList.remove('open');
-  toggleAddFormBtn.textContent = TOGGLE_ADD_FORM_OPEN_TEXT;
+  toggleAddFormBtn.textContent = toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', 'false');
   addTeamForm.setAttribute('aria-hidden', 'true');
 }
 
 toggleAddFormBtn.addEventListener('click', () => {
   const isOpen = addTeamForm.classList.toggle('open');
-  toggleAddFormBtn.textContent = isOpen ? TOGGLE_ADD_FORM_CLOSE_TEXT : TOGGLE_ADD_FORM_OPEN_TEXT;
+  toggleAddFormBtn.textContent = isOpen ? toggleAddFormCloseText : toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) requestAnimationFrame(() => addCategoriaInput.focus());
+  if (isOpen) addCategoriaInput.focus();
   else toggleAddFormBtn.focus();
 });
 
