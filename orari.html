@@ -41,35 +41,17 @@
     .wave-divider svg { display: block; width: 100%; }
     .container { max-width: 540px; margin: 0 auto; padding: 16px 12px 64px; }
 
-    /* FILTRO CATEGORIA */
-    .cat-row {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;
-      margin-bottom: 10px; padding-bottom: 4px;
-    }
-    .cat-btn {
-      background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 6px; font-size: 0.74rem; font-weight: 700; color: #003399;
-      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
-      min-height: 42px; display: flex; align-items: center; justify-content: center; line-height: 1.2;
-    }
-    .cat-btn.active, .cat-btn:hover {
-      background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
-    }
-
     /* FILTRO SQUADRA */
-    .filter-row {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 8px;
-      margin-bottom: 18px; padding-bottom: 4px;
+    .filter-wrap { margin-bottom: 18px; }
+    .team-select {
+      width: 100%; padding: 10px 14px; border: 2px solid #c5d5f7; border-radius: 12px;
+      font-size: 0.9rem; font-weight: 600; color: #003399; background: white;
+      cursor: pointer; font-family: inherit; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23003399' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 32px;
     }
-    .filter-btn {
-      background: white; border: 2px solid #c5d5f7; border-radius: 20px;
-      padding: 6px; font-size: 0.72rem; font-weight: 700; color: #003399;
-      cursor: pointer; text-align: center; transition: all 0.2s; font-family: inherit;
-      min-height: 42px; display: flex; align-items: center; justify-content: center; line-height: 1.2;
-    }
-    .filter-btn.active, .filter-btn:hover {
-      background: #FFCC00; color: #1a3a6c; border-color: #FFCC00;
-    }
+    .team-select:focus { outline: none; border-color: #003399; box-shadow: 0 0 0 3px rgba(0,51,153,0.12); }
 
     /* CARD GRUPPO */
     .gruppo-card {
@@ -247,17 +229,37 @@
     <button class="save-btn" id="save-orari-btn">💾 Salva modifiche</button>
   </div>
 
-  <!-- FILTRO CATEGORIA -->
-  <div class="cat-row" id="cat-row">
-    <button class="cat-btn active" data-cat="all">Tutte</button>
-    <button class="cat-btn" data-cat="Femminili">♀ Femminili</button>
-    <button class="cat-btn" data-cat="Senior">♂ Senior</button>
-    <button class="cat-btn" data-cat="Giovanili">🏀 Giovanili</button>
-    <button class="cat-btn" data-cat="Minibasket">⭐ Mini</button>
-  </div>
-
   <!-- FILTRO SQUADRA -->
-  <div class="filter-row" id="filter-row"><!-- generato da JS --></div>
+  <div class="filter-wrap">
+    <select id="team-select" class="team-select">
+      <option value="all">— Tutte le squadre —</option>
+      <optgroup label="♀ Femminili">
+        <option value="prom_f">Promozione ♀</option>
+        <option value="u17_f">Under 17 ♀</option>
+        <option value="u15_f">Under 15 ♀</option>
+      </optgroup>
+      <optgroup label="♂ Senior">
+        <option value="dr1">Div. Reg. 1 ♂</option>
+        <option value="dr4">Div. Reg. 4 ♂</option>
+      </optgroup>
+      <optgroup label="🏀 Giovanili">
+        <option value="a2010">2010</option>
+        <option value="a2011">2011</option>
+        <option value="a2012">2012</option>
+        <option value="a2013">2013</option>
+        <option value="a2014">2014</option>
+        <option value="a2015">2015</option>
+      </optgroup>
+      <optgroup label="⭐ Minibasket">
+        <option value="m2016">Mini 2016</option>
+        <option value="m2017">Mini 2017</option>
+        <option value="m2018">Mini 2018</option>
+        <option value="m2019">Mini 2019</option>
+        <option value="m2021">Mini 2020-21</option>
+        <option value="m2023">Mini 2022-23</option>
+      </optgroup>
+    </select>
+  </div>
 
   <!-- ORARI -->
   <div id="schedule-container"><!-- generato da JS --></div>
@@ -360,18 +362,13 @@ let nextWeekKey = getNextWeekKey(currentWeekKey);
 let weekData = {};
 let defaultData = {};
 let activeFilter = 'all';
-let activeCat = 'all';
 (function() {
-  const savedCat = localStorage.getItem('basketCat');
-  if (savedCat && document.querySelector('.cat-btn[data-cat="' + CSS.escape(savedCat) + '"]')) {
-    activeCat = savedCat;
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === savedCat));
-  }
   const savedTeam = localStorage.getItem('basketTeam');
   if (savedTeam) {
-    const g = GROUPS.find(x => x.key === savedTeam);
-    if (g && (activeCat === 'all' || g.category === activeCat)) activeFilter = savedTeam;
+    const valid = savedTeam === 'all' || GROUPS.some(x => x.key === savedTeam);
+    if (valid) activeFilter = savedTeam;
   }
+  document.getElementById('team-select').value = activeFilter;
 })();
 
 document.getElementById('week-label').textContent = (() => {
@@ -379,27 +376,11 @@ document.getElementById('week-label').textContent = (() => {
   return `${formatDate(s)} – ${formatDate(e)}`;
 })();
 
-// Populate filter row
-function buildFilterRow() {
-  const row = document.getElementById('filter-row');
-  row.innerHTML = '';
-  const btn0 = document.createElement('button');
-  btn0.className = 'filter-btn' + (activeFilter === 'all' ? ' active' : '');
-  btn0.dataset.filter = 'all'; btn0.textContent = 'Tutte';
-  row.appendChild(btn0);
-  const visible = activeCat === 'all' ? GROUPS : GROUPS.filter(g => g.category === activeCat);
-  visible.forEach(g => {
-    const b = document.createElement('button');
-    b.className = 'filter-btn' + (activeFilter === g.key ? ' active' : '');
-    b.dataset.filter = g.key; b.textContent = g.shortLabel;
-    row.appendChild(b);
-  });
-  row.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
-    activeFilter = b.dataset.filter;
-    localStorage.setItem('basketTeam', activeFilter);
-    buildFilterRow(); renderSchedule();
-  }));
-}
+document.getElementById('team-select').addEventListener('change', function() {
+  activeFilter = this.value;
+  localStorage.setItem('basketTeam', activeFilter);
+  renderSchedule();
+});
 
 function listenWeek(wk) {
   db.ref(`basket/orari/${wk}`).on('value', snap => { weekData[wk] = snap.val() || {}; renderSchedule(); });
@@ -426,7 +407,6 @@ function mergeWithDefaults(weekObj, gruppo) {
 }
 
 function renderSchedule() {
-  buildFilterRow();
   const container = document.getElementById('schedule-container');
   container.innerHTML = '';
 
@@ -704,21 +684,6 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
     .catch(() => showToast('❌ Errore nel salvataggio'));
 });
 
-// Filtri categoria
-document.querySelectorAll('.cat-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    activeCat = b.dataset.cat;
-    localStorage.setItem('basketCat', activeCat);
-    if (activeFilter !== 'all') {
-      const g = GROUPS.find(x => x.key === activeFilter);
-      if (g && g.category !== activeCat && activeCat !== 'all') activeFilter = 'all';
-    }
-    document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    renderSchedule();
-  });
-});
-
 // PIN
 const pinBtn = document.getElementById('pin-btn');
 const overlay = document.getElementById('modal-overlay');
@@ -763,7 +728,7 @@ document.getElementById('edit-week-select').addEventListener('change', () => {
   if (sel.value) renderEditForm(sel.value);
 });
 
-buildFilterRow();
+renderSchedule();
 </script>
 </body>
 </html>
