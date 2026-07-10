@@ -49,6 +49,8 @@
     /* FILTRI */
     /* FILTRO SQUADRA */
     .filter-wrap { margin-bottom: 18px; }
+    .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .filter-label { font-size: 0.85rem; font-weight: 700; color: #555; white-space: nowrap; min-width: 80px; }
     .team-select {
       width: 100%; padding: 10px 14px; border: 2px solid #c5d5f7; border-radius: 12px;
       font-size: 0.9rem; font-weight: 600; color: #003399; background: white;
@@ -174,34 +176,22 @@
 
   <!-- FILTRO SQUADRA -->
   <div class="filter-wrap">
-    <select id="team-select" class="team-select">
-      <option value="tutti">— Tutte le squadre —</option>
-      <optgroup label="⛹️‍♀️ Femminili">
-        <option value="prom_f">Promozione ⛹️‍♀️</option>
-        <option value="u17_f">Under 17 ⛹️‍♀️</option>
-        <option value="u15_f">Under 15 ⛹️‍♀️</option>
-      </optgroup>
-      <optgroup label="⛹️‍♂️ Senior">
-        <option value="dr1">Div. Reg. 1 ⛹️‍♂️</option>
-        <option value="dr4">Div. Reg. 4 ⛹️‍♂️</option>
-      </optgroup>
-      <optgroup label="🏀 Giovanili">
-        <option value="a2010">2010</option>
-        <option value="a2011">2011</option>
-        <option value="a2012">2012</option>
-        <option value="a2013">2013</option>
-        <option value="a2014">2014</option>
-        <option value="a2015">2015</option>
-      </optgroup>
-      <optgroup label="⭐ Minibasket">
-        <option value="m2016">Mini 2016</option>
-        <option value="m2017">Mini 2017</option>
-        <option value="m2018">Mini 2018</option>
-        <option value="m2019">Mini 2019</option>
-        <option value="m2021">Mini 2020-21</option>
-        <option value="m2023">Mini 2022-23</option>
-      </optgroup>
-    </select>
+    <div class="filter-row">
+      <label class="filter-label">Categoria:</label>
+      <select id="cat-select" class="team-select">
+        <option value="">— Tutte le categorie —</option>
+        <option value="Femminili">⛹️‍♀️ Femminili</option>
+        <option value="Senior">⛹️‍♂️ Senior</option>
+        <option value="Giovanili">🏀 Giovanili</option>
+        <option value="Minibasket">⭐ Minibasket</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <label class="filter-label">Squadra:</label>
+      <select id="team-select" class="team-select">
+        <option value="tutti">— Tutte le squadre —</option>
+      </select>
+    </div>
   </div>
 
   <div id="players-container"></div>
@@ -271,12 +261,30 @@ function showToast(msg) {
 
 let allPlayers = {};
 let activeGroup = 'tutti';
+
+function populateTeamSelect(catValue) {
+  const sel = document.getElementById('team-select');
+  sel.innerHTML = '<option value="tutti">— Tutte le squadre —</option>';
+  const groups = catValue ? GROUPS.filter(g => g.category === catValue) : GROUPS;
+  groups.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.key;
+    opt.textContent = g.label;
+    sel.appendChild(opt);
+  });
+}
+
 (function() {
   const savedTeam = localStorage.getItem('basketTeam');
   if (savedTeam) {
     const valid = savedTeam === 'tutti' || GROUPS.some(x => x.key === savedTeam);
     if (valid) activeGroup = savedTeam;
   }
+  const savedCat = activeGroup !== 'tutti'
+    ? (GROUPS.find(x => x.key === activeGroup) || {}).category || ''
+    : '';
+  document.getElementById('cat-select').value = savedCat;
+  populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeGroup;
 })();
 
@@ -286,6 +294,14 @@ db.ref('.info/connected').on('value', snap => {
   else { dot.className='sync-dot error'; lbl.textContent='❌ Offline – riconnessione…'; }
 });
 giocatoriRef.on('value', snap => { allPlayers = snap.val() || {}; render(); });
+
+document.getElementById('cat-select').addEventListener('change', function() {
+  populateTeamSelect(this.value);
+  activeGroup = 'tutti';
+  document.getElementById('team-select').value = 'tutti';
+  localStorage.setItem('basketTeam', activeGroup);
+  render();
+});
 
 document.getElementById('team-select').addEventListener('change', function() {
   activeGroup = this.value;
