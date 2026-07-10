@@ -246,7 +246,7 @@
     <div class="filter-row" id="team-row" style="display:none">
       <label class="filter-label">Squadra:</label>
       <select id="team-select" class="team-select">
-        <option value="all">— Tutte le squadre —</option>
+        <option value="all">— Seleziona una squadra —</option>
       </select>
     </div>
   </div>
@@ -355,7 +355,7 @@ let activeFilter = 'all';
 
 function populateTeamSelect(catValue) {
   const sel = document.getElementById('team-select');
-  sel.innerHTML = '<option value="all">— Tutte le squadre —</option>';
+  sel.innerHTML = '<option value="all">— Seleziona una squadra —</option>';
   const groups = catValue ? GROUPS.filter(g => g.category === catValue) : GROUPS;
   groups.forEach(g => {
     const opt = document.createElement('option');
