@@ -332,7 +332,7 @@
     <div class="filter-row">
       <label class="filter-label">Categoria:</label>
       <select id="cat-select" class="team-select">
-        <option value="">— Tutte le categorie —</option>
+        <option value="">— Seleziona una categoria —</option>
         <option value="Femminili">⛹️‍♀️ Femminili</option>
         <option value="Senior">⛹️‍♂️ Senior</option>
         <option value="Giovanili">🏀 Giovanili</option>
@@ -486,6 +486,10 @@ function render() {
   const container = document.getElementById('calendario-container');
   const today = new Date(); today.setHours(0,0,0,0);
   const todayStr = today.toISOString().slice(0,10);
+
+  if (!document.getElementById('cat-select').value) {
+    container.innerHTML = '<div class="no-items">👆 Seleziona una categoria per vedere le partite</div>'; return;
+  }
 
   const entries = Object.entries(allData)
     .filter(([,v]) => matchesFilter(v))
