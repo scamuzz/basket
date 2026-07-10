@@ -188,8 +188,8 @@
 
   <!-- PANNELLO AGGIUNTA (solo admin) -->
   <div class="manager-panel" id="manager-panel">
-    <button class="new-team-btn" id="toggle-add-form-btn" type="button">➕ Nuova Squadra</button>
-    <div class="add-team-form" id="add-team-form">
+    <button class="new-team-btn" id="toggle-add-form-btn" type="button" aria-expanded="false" aria-controls="add-team-form">➕ Nuova Squadra</button>
+    <div class="add-team-form" id="add-team-form" role="region" aria-hidden="true">
       <h3>➕ Aggiungi una squadra</h3>
       <div class="form-group">
         <label>Categoria <span style="color:#e53935">*</span></label>
@@ -481,11 +481,15 @@ const FORM_FOCUS_DELAY = 100;
 function closeAddTeamForm() {
   addTeamForm.classList.remove('open');
   toggleAddFormBtn.textContent = '➕ Nuova Squadra';
+  toggleAddFormBtn.setAttribute('aria-expanded', 'false');
+  addTeamForm.setAttribute('aria-hidden', 'true');
 }
 
 toggleAddFormBtn.addEventListener('click', () => {
   const isOpen = addTeamForm.classList.toggle('open');
   toggleAddFormBtn.textContent = isOpen ? '✖ Chiudi form' : '➕ Nuova Squadra';
+  toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
   if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), FORM_FOCUS_DELAY);
 });
 
