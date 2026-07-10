@@ -481,27 +481,23 @@ const toggleAddFormOpenText = 'Nuova Squadra';
 const toggleAddFormCloseText = 'Chiudi form';
 
 function closeAddTeamForm() {
-  if (!addTeamForm.classList.contains('open') &&
-      toggleAddFormBtn.textContent === toggleAddFormOpenText &&
-      toggleAddFormBtn.getAttribute('aria-expanded') === 'false' &&
-      addTeamForm.getAttribute('aria-hidden') === 'true') return;
-  addTeamForm.classList.remove('open');
-  toggleAddFormBtn.textContent = toggleAddFormOpenText;
-  toggleAddFormBtn.setAttribute('aria-expanded', 'false');
-  addTeamForm.setAttribute('aria-hidden', 'true');
+  setAddTeamFormOpen(false);
 }
 
-toggleAddFormBtn.textContent = toggleAddFormOpenText;
-toggleAddFormBtn.setAttribute('aria-expanded', 'false');
-addTeamForm.setAttribute('aria-hidden', 'true');
-
-toggleAddFormBtn.addEventListener('click', () => {
-  const isOpen = addTeamForm.classList.toggle('open');
+function setAddTeamFormOpen(isOpen, { restoreFocus = false } = {}) {
+  addTeamForm.classList.toggle('open', isOpen);
   toggleAddFormBtn.textContent = isOpen ? toggleAddFormCloseText : toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) setTimeout(() => addCategoriaInput.focus(), 0);
-  else toggleAddFormBtn.focus();
+  if (isOpen) requestAnimationFrame(() => addCategoriaInput.focus());
+  else if (restoreFocus) toggleAddFormBtn.focus();
+}
+
+closeAddTeamForm();
+
+toggleAddFormBtn.addEventListener('click', () => {
+  const shouldOpen = !addTeamForm.classList.contains('open');
+  setAddTeamFormOpen(shouldOpen, { restoreFocus: !shouldOpen });
 });
 
 function updatePinBtn() { pinBtn.textContent = isManager() ? '🔐' : '🔒'; }
