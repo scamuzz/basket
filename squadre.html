@@ -473,12 +473,12 @@ document.getElementById('edit-save').addEventListener('click', () => {
 // --- PIN ---
 const pinBtn = document.getElementById('pin-btn');
 const pinOverlay = document.getElementById('pin-overlay');
+const toggleAddFormOpenText = 'Nuova Squadra';
+const toggleAddFormCloseText = 'Chiudi form';
 const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
 const addCategoriaInput = document.getElementById('add-categoria');
-const toggleAddFormOpenText = 'Nuova Squadra';
-const toggleAddFormCloseText = 'Chiudi form';
 
 function closeAddTeamForm() {
   setAddTeamFormOpen(false);
@@ -489,11 +489,9 @@ function setAddTeamFormOpen(isOpen, { restoreFocus = false } = {}) {
   toggleAddFormBtn.textContent = isOpen ? toggleAddFormCloseText : toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) requestAnimationFrame(() => addCategoriaInput.focus());
+  if (isOpen) addCategoriaInput.focus();
   else if (restoreFocus) toggleAddFormBtn.focus();
 }
-
-closeAddTeamForm();
 
 toggleAddFormBtn.addEventListener('click', () => {
   const shouldOpen = !addTeamForm.classList.contains('open');
