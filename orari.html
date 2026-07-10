@@ -84,7 +84,9 @@
     .orario-info { flex: 1; }
     .orario-time { font-size: 0.88rem; font-weight: 700; color: #1a3a6c; }
     .orario-time.cancelled { text-decoration: line-through; color: #b0bec5; }
-    .orario-nota { font-size: 0.72rem; color: #e65100; margin-top: 2px; font-style: italic; }
+    .orario-palestra { font-size: 0.82rem; color: #2e7d32; margin-top: 4px; font-weight: 700; }
+    .orario-nota { font-size: 0.82rem; background: #fff9c4; color: #2f2600; margin-top: 5px; line-height: 1.55; padding: 3px 7px; border-radius: 6px; }
+    .orario-avviso { font-size: 0.72rem; color: #e65100; margin-top: 2px; font-style: italic; }
     .no-train { font-size: 0.80rem; color: #b0bec5; font-style: italic; }
     .select-prompt { text-align: center; padding: 32px 10px; background: white; border-radius: 18px;
       border: 2px dashed #c5d5f7; color: #90a4ae; font-size: 0.88rem; font-style: italic; }
@@ -492,13 +494,13 @@ function renderSchedule() {
         let content;
         if (isCancelled) {
           content = `<span class="orario-time cancelled">${info.orario || ''}</span>
-            <div class="orario-nota">⚠️ Annullato${ovInfo.nota ? ' – ' + ovInfo.nota : ''}</div>`;
+            <div class="orario-avviso">⚠️ Annullato${ovInfo.nota ? ' – ' + ovInfo.nota : ''}</div>`;
         } else if (!info || !info.attivo) {
           if (!isManager()) return;
           content = `<span class="no-train">— nessun allenamento</span>`;
         } else {
           content = `<span class="orario-time">${info.orario || '—'}</span>`;
-          if (info.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(info.palestra)}</div>`;
+          if (info.palestra) content += `<div class="orario-palestra">🏛️ ${capitalizeFirst(info.palestra)}</div>`;
           if (info.nota) content += `<div class="orario-nota">${info.nota}</div>`;
           if (hasOverriddenTime) content += `<span class="modified-tag">orario modificato</span>`;
           if (isExtraDay) content += `<span class="modified-tag tag-extra">aggiunto</span>`;
@@ -552,16 +554,16 @@ function renderSchedule() {
       let content, rowClass;
       if (nxIsExtraDay) {
         content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag tag-extra">aggiunto</span>`;
-        if (nxInfo.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
+        if (nxInfo.palestra) content += `<div class="orario-palestra">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
         if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
         rowClass = ' extra-day';
       } else if (nxIsCancelled) {
         content = `<span class="orario-time cancelled">${defInfo.orario || ''}</span>` +
-          `<div class="orario-nota">⚠️ Annullato${nxInfo.nota ? ' – ' + nxInfo.nota : ''}</div>`;
+          `<div class="orario-avviso">⚠️ Annullato${nxInfo.nota ? ' – ' + nxInfo.nota : ''}</div>`;
         rowClass = ' modified';
       } else {
         content = `<span class="orario-time">${nxInfo.orario || '—'}</span><span class="modified-tag">orario modificato</span>`;
-        if (nxInfo.palestra) content += `<div class="orario-nota">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
+        if (nxInfo.palestra) content += `<div class="orario-palestra">🏛️ ${capitalizeFirst(nxInfo.palestra)}</div>`;
         if (nxInfo.nota) content += `<div class="orario-nota">${nxInfo.nota}</div>`;
         rowClass = ' modified';
       }
