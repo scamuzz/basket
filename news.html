@@ -285,7 +285,7 @@ const db = firebase.database();
 
 // Group definitions for news
 const GROUP_DEFS = [
-  { key: 'generale', label: 'Notizie per tutti', icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale', category: 'Generale' },
+  { key: 'generale', label: 'Notizie per tutti', icon: '📰', badgeClass: 'badge-generale', cardClass: 'cat-generale' },
   { key: 'prom_f',   label: 'Promozione ♀', icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
   { key: 'u17_f',    label: 'Under 17 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
   { key: 'u15_f',    label: 'Under 15 ♀',   icon: '🏀', badgeClass: 'badge-femm',     cardClass: 'cat-femm', category: 'Femminili' },
@@ -309,6 +309,7 @@ const GROUPS = {};
 GROUP_DEFS.forEach(g => {
   GROUPS[g.key] = { ...g, ref: db.ref(`basket/news/${g.key}`) };
 });
+const SELECTABLE_GROUPS = GROUP_DEFS.filter(g => g.key !== 'generale');
 
 let allData = {};
 GROUP_DEFS.forEach(g => { allData[g.key] = {}; });
@@ -317,7 +318,7 @@ let activeFilter = 'all';
 function populateTeamSelect(catValue) {
   const sel = document.getElementById('team-select');
   sel.innerHTML = '<option value="all">— Seleziona una squadra —</option>';
-  const groups = catValue ? GROUP_DEFS.filter(g => g.category === catValue && g.key !== 'generale') : [];
+  const groups = catValue ? SELECTABLE_GROUPS.filter(g => g.category === catValue) : [];
   groups.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.key;
@@ -328,7 +329,7 @@ function populateTeamSelect(catValue) {
 
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  const validKeys = GROUP_DEFS.filter(g => g.key !== 'generale').map(g => g.key);
+  const validKeys = SELECTABLE_GROUPS.map(g => g.key);
   if (saved && validKeys.includes(saved)) activeFilter = saved;
   const savedCat = activeFilter !== 'all'
     ? (GROUP_DEFS.find(g => g.key === activeFilter) || {}).category || ''
