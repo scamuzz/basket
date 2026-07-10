@@ -54,6 +54,14 @@
     .manager-panel.visible { display: block; }
     .manager-panel h3 { font-size: 0.76rem; color: #f57f17; text-transform: uppercase;
       letter-spacing: 0.9px; font-weight: 800; margin-bottom: 12px; }
+    .new-team-btn {
+      width: 100%; background: #fff; color: #003399; border: 2px dashed #ffcc00;
+      border-radius: 10px; padding: 10px 12px; font-size: 0.83rem; font-weight: 800;
+      cursor: pointer; font-family: inherit; margin-bottom: 12px;
+    }
+    .new-team-btn:hover { background: #fffde7; }
+    .add-team-form { display: none; }
+    .add-team-form.open { display: block; }
     .form-group { margin-bottom: 10px; }
     .form-group label { font-size: 0.75rem; font-weight: 700; color: #555; display: block; margin-bottom: 4px; }
     .form-input {
@@ -180,26 +188,29 @@
 
   <!-- PANNELLO AGGIUNTA (solo admin) -->
   <div class="manager-panel" id="manager-panel">
-    <h3>➕ Aggiungi una squadra</h3>
-    <div class="form-group">
-      <label>Categoria <span style="color:#e53935">*</span></label>
-      <select class="form-input" id="add-categoria">
-        <option value="">— Seleziona una categoria —</option>
-        <option value="Femminili">⛹️‍♀️ Femminili</option>
-        <option value="Senior">⛹️‍♂️ Senior</option>
-        <option value="Giovanili">🏀 Giovanili</option>
-        <option value="Minibasket">⭐ Minibasket</option>
-      </select>
+    <button class="new-team-btn" id="toggle-add-form-btn" type="button">➕ Nuova Squadra</button>
+    <div class="add-team-form" id="add-team-form">
+      <h3>➕ Aggiungi una squadra</h3>
+      <div class="form-group">
+        <label>Categoria <span style="color:#e53935">*</span></label>
+        <select class="form-input" id="add-categoria">
+          <option value="">— Seleziona una categoria —</option>
+          <option value="Femminili">⛹️‍♀️ Femminili</option>
+          <option value="Senior">⛹️‍♂️ Senior</option>
+          <option value="Giovanili">🏀 Giovanili</option>
+          <option value="Minibasket">⭐ Minibasket</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nome squadra <span style="color:#e53935">*</span></label>
+        <input type="text" class="form-input" id="add-nome" placeholder="Es. Under 15 ⛹️‍♀️" maxlength="80"/>
+      </div>
+      <div class="form-group">
+        <label>Descrizione <span style="color:#90a4ae">(opzionale)</span></label>
+        <textarea class="form-input" id="add-descrizione" placeholder="Breve descrizione della squadra…" maxlength="300"></textarea>
+      </div>
+      <button class="pub-btn" id="add-btn">➕ Aggiungi squadra</button>
     </div>
-    <div class="form-group">
-      <label>Nome squadra <span style="color:#e53935">*</span></label>
-      <input type="text" class="form-input" id="add-nome" placeholder="Es. Under 15 ⛹️‍♀️" maxlength="80"/>
-    </div>
-    <div class="form-group">
-      <label>Descrizione <span style="color:#90a4ae">(opzionale)</span></label>
-      <textarea class="form-input" id="add-descrizione" placeholder="Breve descrizione della squadra…" maxlength="300"></textarea>
-    </div>
-    <button class="pub-btn" id="add-btn">➕ Aggiungi squadra</button>
   </div>
 
   <!-- LISTA SQUADRE -->
@@ -462,15 +473,30 @@ document.getElementById('edit-save').addEventListener('click', () => {
 // --- PIN ---
 const pinBtn = document.getElementById('pin-btn');
 const pinOverlay = document.getElementById('pin-overlay');
+const managerPanel = document.getElementById('manager-panel');
+const addTeamForm = document.getElementById('add-team-form');
+const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
+
+function closeAddTeamForm() {
+  addTeamForm.classList.remove('open');
+  toggleAddFormBtn.textContent = '➕ Nuova Squadra';
+}
+
+toggleAddFormBtn.addEventListener('click', () => {
+  const isOpen = addTeamForm.classList.toggle('open');
+  toggleAddFormBtn.textContent = isOpen ? '✖ Chiudi form' : '➕ Nuova Squadra';
+  if (isOpen) setTimeout(() => document.getElementById('add-categoria').focus(), 100);
+});
 
 function updatePinBtn() { pinBtn.textContent = isManager() ? '🔐' : '🔒'; }
 updatePinBtn();
-if (isManager()) document.getElementById('manager-panel').classList.add('visible');
+if (isManager()) managerPanel.classList.add('visible');
 
 pinBtn.addEventListener('click', () => {
   if (isManager()) {
     setManager(false);
-    document.getElementById('manager-panel').classList.remove('visible');
+    managerPanel.classList.remove('visible');
+    closeAddTeamForm();
     updatePinBtn(); render(); showToast('🔐 Logout gestore effettuato');
   } else {
     document.getElementById('modal-error').textContent = '';
@@ -493,7 +519,8 @@ document.getElementById('pin-toggle').addEventListener('click', () => {
 function checkPin() {
   if (document.getElementById('pin-input').value === 'basket2026') {
     setManager(true); pinOverlay.classList.remove('open');
-    document.getElementById('manager-panel').classList.add('visible');
+    managerPanel.classList.add('visible');
+    closeAddTeamForm();
     updatePinBtn(); render(); showToast('🔓 Modalità gestore attiva');
   } else { document.getElementById('modal-error').textContent = '❌ PIN non corretto'; }
 }
