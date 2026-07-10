@@ -481,18 +481,26 @@ const toggleAddFormOpenText = 'Nuova Squadra';
 const toggleAddFormCloseText = 'Chiudi form';
 
 function closeAddTeamForm() {
+  if (!addTeamForm.classList.contains('open') &&
+      toggleAddFormBtn.textContent === toggleAddFormOpenText &&
+      toggleAddFormBtn.getAttribute('aria-expanded') === 'false' &&
+      addTeamForm.getAttribute('aria-hidden') === 'true') return;
   addTeamForm.classList.remove('open');
   toggleAddFormBtn.textContent = toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', 'false');
   addTeamForm.setAttribute('aria-hidden', 'true');
 }
 
+toggleAddFormBtn.textContent = toggleAddFormOpenText;
+toggleAddFormBtn.setAttribute('aria-expanded', 'false');
+addTeamForm.setAttribute('aria-hidden', 'true');
+
 toggleAddFormBtn.addEventListener('click', () => {
   const isOpen = addTeamForm.classList.toggle('open');
   toggleAddFormBtn.textContent = isOpen ? toggleAddFormCloseText : toggleAddFormOpenText;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) addCategoriaInput.focus();
+  if (isOpen) setTimeout(() => addCategoriaInput.focus(), 0);
   else toggleAddFormBtn.focus();
 });
 
