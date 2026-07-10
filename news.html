@@ -100,16 +100,16 @@
     .pub-btn:hover { opacity: 0.9; }
 
     /* FILTER BAR */
-    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; padding-bottom: 4px; }
-    .filter-btn {
-      padding: 7px 12px; border: 2px solid #c5d5f7; border-radius: 14px;
-      background: white; color: #003399; font-size: 0.74rem; font-weight: 700;
-      cursor: pointer; font-family: inherit; transition: all 0.18s;
-      text-align: center; line-height: 1.2; white-space: nowrap;
-      min-height: 42px; display: flex; align-items: center; justify-content: center;
+    .filter-wrap { margin-bottom: 10px; }
+    .team-select {
+      width: 100%; padding: 10px 14px; border: 2px solid #c5d5f7; border-radius: 12px;
+      font-size: 0.9rem; font-weight: 600; color: #003399; background: white;
+      cursor: pointer; font-family: inherit; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23003399' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 32px;
     }
-    .filter-btn:hover { background: #FFCC00; color: #1a3a6c; border-color: #FFCC00; }
-    .filter-btn.active { background: #FFCC00; color: #1a3a6c; border-color: #FFCC00; }
+    .team-select:focus { outline: none; border-color: #003399; box-shadow: 0 0 0 3px rgba(0,51,153,0.12); }
 
     /* GROUP BADGE */
     .group-badge {
@@ -223,26 +223,36 @@
   </div>
 
   <!-- FILTRI -->
-  <div class="filter-bar" id="filter-bar">
-    <button class="filter-btn active" data-filter="tutti">🌐 Tutti</button>
-    <button class="filter-btn" data-filter="generale">📰 Generale</button>
-    <button class="filter-btn" data-filter="prom_f">Prom ♀</button>
-    <button class="filter-btn" data-filter="u17_f">U17 ♀</button>
-    <button class="filter-btn" data-filter="u15_f">U15 ♀</button>
-    <button class="filter-btn" data-filter="dr1">DR1 ♂</button>
-    <button class="filter-btn" data-filter="dr4">DR4 ♂</button>
-    <button class="filter-btn" data-filter="a2010">2010</button>
-    <button class="filter-btn" data-filter="a2011">2011</button>
-    <button class="filter-btn" data-filter="a2012">2012</button>
-    <button class="filter-btn" data-filter="a2013">2013</button>
-    <button class="filter-btn" data-filter="a2014">2014</button>
-    <button class="filter-btn" data-filter="a2015">2015</button>
-    <button class="filter-btn" data-filter="m2016">Mini 2016</button>
-    <button class="filter-btn" data-filter="m2017">Mini 2017</button>
-    <button class="filter-btn" data-filter="m2018">Mini 2018</button>
-    <button class="filter-btn" data-filter="m2019">Mini 2019</button>
-    <button class="filter-btn" data-filter="m2021">Mini 20-21</button>
-    <button class="filter-btn" data-filter="m2023">Mini 22-23</button>
+  <div class="filter-wrap">
+    <select id="team-select" class="team-select">
+      <option value="tutti">🌐 Tutti</option>
+      <option value="generale">📰 Generale</option>
+      <optgroup label="♀ Femminili">
+        <option value="prom_f">Promozione ♀</option>
+        <option value="u17_f">Under 17 ♀</option>
+        <option value="u15_f">Under 15 ♀</option>
+      </optgroup>
+      <optgroup label="♂ Senior">
+        <option value="dr1">DR1 ♂</option>
+        <option value="dr4">DR4 ♂</option>
+      </optgroup>
+      <optgroup label="🏀 Giovanili">
+        <option value="a2010">2010</option>
+        <option value="a2011">2011</option>
+        <option value="a2012">2012</option>
+        <option value="a2013">2013</option>
+        <option value="a2014">2014</option>
+        <option value="a2015">2015</option>
+      </optgroup>
+      <optgroup label="⭐ Minibasket">
+        <option value="m2016">Mini 2016</option>
+        <option value="m2017">Mini 2017</option>
+        <option value="m2018">Mini 2018</option>
+        <option value="m2019">Mini 2019</option>
+        <option value="m2021">Mini 2020-21</option>
+        <option value="m2023">Mini 2022-23</option>
+      </optgroup>
+    </select>
   </div>
 
   <div class="section-title">📢 Comunicazioni e Avvisi</div>
@@ -314,10 +324,9 @@ GROUP_DEFS.forEach(g => { allData[g.key] = {}; });
 let activeFilter = 'tutti';
 (function() {
   const saved = localStorage.getItem('basketTeam');
-  if (saved && document.querySelector('.filter-btn[data-filter="' + CSS.escape(saved) + '"]')) {
-    activeFilter = saved;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === saved));
-  }
+  const validKeys = GROUP_DEFS.map(g => g.key).concat(['tutti']);
+  if (saved && validKeys.includes(saved)) activeFilter = saved;
+  document.getElementById('team-select').value = activeFilter;
 })();
 
 function isManager() { return localStorage.getItem('basketManager') === '1'; }
@@ -393,13 +402,10 @@ function renderNews() {
 }
 
 // Filtri
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    activeFilter = btn.dataset.filter;
-    localStorage.setItem('basketTeam', activeFilter);
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); renderNews();
-  });
+document.getElementById('team-select').addEventListener('change', function() {
+  activeFilter = this.value;
+  localStorage.setItem('basketTeam', activeFilter);
+  renderNews();
 });
 
 document.getElementById('pub-btn').addEventListener('click', () => {
