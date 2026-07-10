@@ -477,7 +477,6 @@ const managerPanel = document.getElementById('manager-panel');
 const addTeamForm = document.getElementById('add-team-form');
 const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
 const addCategoriaInput = document.getElementById('add-categoria');
-const FOCUS_DELAY_MS = 100; // attende il rendering del form prima del focus
 const TOGGLE_ADD_FORM_OPEN_TEXT = '➕ Nuova Squadra';
 const TOGGLE_ADD_FORM_CLOSE_TEXT = '✖ Chiudi form';
 
@@ -493,7 +492,7 @@ toggleAddFormBtn.addEventListener('click', () => {
   toggleAddFormBtn.textContent = isOpen ? TOGGLE_ADD_FORM_CLOSE_TEXT : TOGGLE_ADD_FORM_OPEN_TEXT;
   toggleAddFormBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   addTeamForm.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-  if (isOpen) setTimeout(() => addCategoriaInput.focus(), FOCUS_DELAY_MS);
+  if (isOpen) requestAnimationFrame(() => addCategoriaInput.focus());
   else toggleAddFormBtn.focus();
 });
 
