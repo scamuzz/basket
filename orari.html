@@ -371,7 +371,9 @@ function populateTeamSelect(catValue) {
     const valid = savedTeam === 'all' || GROUPS.some(x => x.key === savedTeam);
     if (valid) activeFilter = savedTeam;
   }
-  const savedCat = activeFilter !== 'all' ? ((GROUPS.find(x => x.key === activeFilter) || {}).category || '') : '';
+  const savedCat = activeFilter !== 'all'
+    ? (GROUPS.find(x => x.key === activeFilter) || {}).category || ''
+    : '';
   document.getElementById('cat-select').value = savedCat;
   populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeFilter;
@@ -385,6 +387,7 @@ document.getElementById('week-label').textContent = (() => {
 document.getElementById('cat-select').addEventListener('change', function() {
   populateTeamSelect(this.value);
   activeFilter = 'all';
+  document.getElementById('team-select').value = 'all';
   localStorage.setItem('basketTeam', activeFilter);
   renderSchedule();
 });

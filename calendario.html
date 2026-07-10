@@ -426,7 +426,11 @@ const CAT_TEAMS = {
 };
 
 const KEY_TO_CAT = {};
-Object.entries(CAT_TEAMS).forEach(([cat, teams]) => teams.forEach(t => { KEY_TO_CAT[t.key] = cat; }));
+for (const [cat, teams] of Object.entries(CAT_TEAMS)) {
+  for (const t of teams) {
+    KEY_TO_CAT[t.key] = cat;
+  }
+}
 
 function populateTeamSelect(catValue) {
   const sel = document.getElementById('team-select');
@@ -726,6 +730,7 @@ function resetForm() {
 document.getElementById('cat-select').addEventListener('change', function() {
   populateTeamSelect(this.value);
   activeFilter = 'tutti';
+  document.getElementById('team-select').value = 'tutti';
   localStorage.setItem('basketTeam', activeFilter);
   render();
 });

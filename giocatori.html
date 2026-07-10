@@ -280,7 +280,9 @@ function populateTeamSelect(catValue) {
     const valid = savedTeam === 'tutti' || GROUPS.some(x => x.key === savedTeam);
     if (valid) activeGroup = savedTeam;
   }
-  const savedCat = activeGroup !== 'tutti' ? ((GROUPS.find(x => x.key === activeGroup) || {}).category || '') : '';
+  const savedCat = activeGroup !== 'tutti'
+    ? (GROUPS.find(x => x.key === activeGroup) || {}).category || ''
+    : '';
   document.getElementById('cat-select').value = savedCat;
   populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeGroup;
@@ -296,6 +298,7 @@ giocatoriRef.on('value', snap => { allPlayers = snap.val() || {}; render(); });
 document.getElementById('cat-select').addEventListener('change', function() {
   populateTeamSelect(this.value);
   activeGroup = 'tutti';
+  document.getElementById('team-select').value = 'tutti';
   localStorage.setItem('basketTeam', activeGroup);
   render();
 });
