@@ -666,7 +666,7 @@ function renderEditForm(groupKey) {
       ${timeSelectHTML('orario-start', groupKey, giorno, tStart)}
       <span class="time-sep">–</span>
       ${timeSelectHTML('orario-end', groupKey, giorno, tEnd)}
-      <select class="edit-time-sel" id="palestra-${groupKey}-${giorno}" style="width:100px;"><option value="">– palestra –</option>${palestraOpts}</select>
+      <select class="edit-time-sel" id="palestra-${groupKey}-${giorno}" style="width:100px;"><option value="">seleziona una palestra</option>${palestraOpts}</select>
       <input type="text" class="edit-input" id="nota-${groupKey}-${giorno}" placeholder="nota (opz.)" value="${info.nota || ''}"/>`;
     const chkEl = row.querySelector(`#chk-${groupKey}-${giorno}`);
     const startHEl = row.querySelector(`#orario-start-h-${groupKey}-${giorno}`);
@@ -698,11 +698,12 @@ document.getElementById('save-orari-btn').addEventListener('click', () => {
     const nota = document.getElementById(`nota-${groupKey}-${giorno}`).value.trim();
     const palestra = document.getElementById(`palestra-${groupKey}-${giorno}`).value;
     if (chk.checked && (!tStart || !tEnd)) { hasError = true; }
+    if (chk.checked && !palestra) { hasError = true; }
     if (!chk.checked && (tStart || tEnd) && !(tStart && tEnd)) { hasError = true; }
     const orario = (tStart && tEnd) ? `${tStart}–${tEnd}` : '';
     data[giorno] = { attivo: chk.checked, orario, nota, palestra };
   });
-  if (hasError) { showToast('⚠️ Inserisci sia l\'inizio che la fine dell\'orario per i giorni attivi'); return; }
+  if (hasError) { showToast('⚠️ Inserisci orario e palestra per i giorni attivi'); return; }
   ref.set(data)
     .then(() => showToast('✅ Orari salvati!'))
     .catch(() => showToast('❌ Errore nel salvataggio'));
