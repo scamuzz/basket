@@ -48,6 +48,8 @@
 
     /* FILTRI */
     .filter-wrap { margin-bottom: 6px; }
+    .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .filter-label { font-size: 0.85rem; font-weight: 700; color: #555; white-space: nowrap; min-width: 80px; }
     .team-select {
       width: 100%; padding: 10px 14px; border: 2px solid #c5d5f7; border-radius: 12px;
       font-size: 0.9rem; font-weight: 600; color: #003399; background: white;
@@ -327,36 +329,23 @@
 
   <!-- FILTRI -->
   <div class="filter-wrap">
-    <select id="team-select" class="team-select">
-      <option value="tutti">— Tutti —</option>
-      <optgroup label="⛹️‍♀️ Femminili">
-        <option value="prom_f">Promozione ⛹️‍♀️</option>
-        <option value="u17_f">Under 17 ⛹️‍♀️</option>
-        <option value="u15_f">Under 15 ⛹️‍♀️</option>
-      </optgroup>
-      <optgroup label="⛹️‍♂️ Senior">
-        <option value="dr1">Div. Reg. 1 ⛹️‍♂️</option>
-        <option value="dr4">Div. Reg. 4 ⛹️‍♂️</option>
-      </optgroup>
-      <optgroup label="🏀 Giovanili">
-        <option value="a2010">2010</option>
-        <option value="a2011">2011</option>
-        <option value="a2012">2012</option>
-        <option value="a2013">2013</option>
-        <option value="a2014">2014</option>
-        <option value="a2015">2015</option>
-      </optgroup>
-      <optgroup label="⭐ Minibasket">
-        <option value="mini">— Tutto il Minibasket —</option>
-        <option value="m2016">Mini 2016</option>
-        <option value="m2017">Mini 2017</option>
-        <option value="m2018">Mini 2018</option>
-        <option value="m2019">Mini 2019</option>
-        <option value="m2021">Mini 2020-21</option>
-        <option value="m2023">Mini 2022-23</option>
-      </optgroup>
-      <option value="evento">🎉 Evento</option>
-    </select>
+    <div class="filter-row">
+      <label class="filter-label">Categoria:</label>
+      <select id="cat-select" class="team-select">
+        <option value="">— Tutte le categorie —</option>
+        <option value="Femminili">⛹️‍♀️ Femminili</option>
+        <option value="Senior">⛹️‍♂️ Senior</option>
+        <option value="Giovanili">🏀 Giovanili</option>
+        <option value="Minibasket">⭐ Minibasket</option>
+        <option value="Altro">🎉 Altro</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <label class="filter-label">Squadra:</label>
+      <select id="team-select" class="team-select">
+        <option value="tutti">— Tutti —</option>
+      </select>
+    </div>
   </div>
 
   <div class="section-title">🏀 Partite &amp; Gare</div>
@@ -410,6 +399,47 @@ const CAMPIONATO_LABELS = {
   evento:'Evento/Torneo'
 };
 
+const CAT_TEAMS = {
+  'Femminili': [
+    { key: 'prom_f', label: 'Promozione ⛹️‍♀️' },
+    { key: 'u17_f',  label: 'Under 17 ⛹️‍♀️' },
+    { key: 'u15_f',  label: 'Under 15 ⛹️‍♀️' },
+  ],
+  'Senior': [
+    { key: 'dr1', label: 'Div. Reg. 1 ⛹️‍♂️' },
+    { key: 'dr4', label: 'Div. Reg. 4 ⛹️‍♂️' },
+  ],
+  'Giovanili': [
+    { key: 'a2010', label: '2010' }, { key: 'a2011', label: '2011' },
+    { key: 'a2012', label: '2012' }, { key: 'a2013', label: '2013' },
+    { key: 'a2014', label: '2014' }, { key: 'a2015', label: '2015' },
+  ],
+  'Minibasket': [
+    { key: 'mini',  label: '— Tutto il Minibasket —' },
+    { key: 'm2016', label: 'Mini 2016' }, { key: 'm2017', label: 'Mini 2017' },
+    { key: 'm2018', label: 'Mini 2018' }, { key: 'm2019', label: 'Mini 2019' },
+    { key: 'm2021', label: 'Mini 2020-21' }, { key: 'm2023', label: 'Mini 2022-23' },
+  ],
+  'Altro': [
+    { key: 'evento', label: '🎉 Evento' },
+  ],
+};
+
+const KEY_TO_CAT = {};
+Object.entries(CAT_TEAMS).forEach(([cat, teams]) => teams.forEach(t => { KEY_TO_CAT[t.key] = cat; }));
+
+function populateTeamSelect(catValue) {
+  const sel = document.getElementById('team-select');
+  sel.innerHTML = '<option value="tutti">— Tutti —</option>';
+  const teams = catValue ? (CAT_TEAMS[catValue] || []) : Object.values(CAT_TEAMS).flat();
+  teams.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.key;
+    opt.textContent = t.label;
+    sel.appendChild(opt);
+  });
+}
+
 function isManager() { return localStorage.getItem('basketManager') === '1'; }
 function setManager(v) { localStorage.setItem('basketManager', v ? '1' : '0'); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -425,6 +455,9 @@ let activeFilter = 'tutti', editingId = null;
   const saved = localStorage.getItem('basketTeam');
   const validKeys = ['tutti','prom_f','u17_f','u15_f','dr1','dr4','a2010','a2011','a2012','a2013','a2014','a2015','mini','m2016','m2017','m2018','m2019','m2021','m2023','evento'];
   if (saved && validKeys.includes(saved)) activeFilter = saved;
+  const savedCat = activeFilter !== 'tutti' ? (KEY_TO_CAT[activeFilter] || '') : '';
+  document.getElementById('cat-select').value = savedCat;
+  populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeFilter;
 })();
 
@@ -689,6 +722,13 @@ function resetForm() {
   document.getElementById('cancel-edit-btn').style.display = 'none';
   toggleTipoFields();
 }
+
+document.getElementById('cat-select').addEventListener('change', function() {
+  populateTeamSelect(this.value);
+  activeFilter = 'tutti';
+  localStorage.setItem('basketTeam', activeFilter);
+  render();
+});
 
 // Filtri
 document.getElementById('team-select').addEventListener('change', function() {
