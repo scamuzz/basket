@@ -176,14 +176,14 @@
   <div class="filter-wrap">
     <select id="team-select" class="team-select">
       <option value="tutti">— Tutte le squadre —</option>
-      <optgroup label="♀ Femminili">
-        <option value="prom_f">Promozione ♀</option>
-        <option value="u17_f">Under 17 ♀</option>
-        <option value="u15_f">Under 15 ♀</option>
+      <optgroup label="⛹️‍♀️ Femminili">
+        <option value="prom_f">Promozione ⛹️‍♀️</option>
+        <option value="u17_f">Under 17 ⛹️‍♀️</option>
+        <option value="u15_f">Under 15 ⛹️‍♀️</option>
       </optgroup>
-      <optgroup label="♂ Senior">
-        <option value="dr1">Div. Reg. 1 ♂</option>
-        <option value="dr4">Div. Reg. 4 ♂</option>
+      <optgroup label="⛹️‍♂️ Senior">
+        <option value="dr1">Div. Reg. 1 ⛹️‍♂️</option>
+        <option value="dr4">Div. Reg. 4 ⛹️‍♂️</option>
       </optgroup>
       <optgroup label="🏀 Giovanili">
         <option value="a2010">2010</option>
@@ -242,11 +242,11 @@ const db = firebase.database();
 const giocatoriRef = db.ref('basket/giocatori');
 
 const GROUPS = [
-  { key: 'prom_f', label: 'Promozione ♀',  shortLabel: 'Prom ♀',    category: 'Femminili', badgeClass: 'badge-femm' },
-  { key: 'u17_f',  label: 'Under 17 ♀',    shortLabel: 'U17 ♀',     category: 'Femminili', badgeClass: 'badge-femm' },
-  { key: 'u15_f',  label: 'Under 15 ♀',    shortLabel: 'U15 ♀',     category: 'Femminili', badgeClass: 'badge-femm' },
-  { key: 'dr1',    label: 'Div. Reg. 1 ♂', shortLabel: 'DR1 ♂',    category: 'Senior',  badgeClass: 'badge-masc' },
-  { key: 'dr4',    label: 'Div. Reg. 4 ♂', shortLabel: 'DR4 ♂',    category: 'Senior',  badgeClass: 'badge-masc' },
+  { key: 'prom_f', label: 'Promozione ⛹️‍♀️',  shortLabel: 'Prom ⛹️‍♀️',    category: 'Femminili', badgeClass: 'badge-femm' },
+  { key: 'u17_f',  label: 'Under 17 ⛹️‍♀️',    shortLabel: 'U17 ⛹️‍♀️',     category: 'Femminili', badgeClass: 'badge-femm' },
+  { key: 'u15_f',  label: 'Under 15 ⛹️‍♀️',    shortLabel: 'U15 ⛹️‍♀️',     category: 'Femminili', badgeClass: 'badge-femm' },
+  { key: 'dr1',    label: 'Div. Reg. 1 ⛹️‍♂️', shortLabel: 'DR1 ⛹️‍♂️',    category: 'Senior',  badgeClass: 'badge-masc' },
+  { key: 'dr4',    label: 'Div. Reg. 4 ⛹️‍♂️', shortLabel: 'DR4 ⛹️‍♂️',    category: 'Senior',  badgeClass: 'badge-masc' },
   { key: 'a2010',  label: '2010',            shortLabel: '2010',      category: 'Giovanili',    badgeClass: 'badge-ann' },
   { key: 'a2011',  label: '2011',            shortLabel: '2011',      category: 'Giovanili',    badgeClass: 'badge-ann' },
   { key: 'a2012',  label: '2012',            shortLabel: '2012',      category: 'Giovanili',    badgeClass: 'badge-ann' },
