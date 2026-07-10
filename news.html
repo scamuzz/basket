@@ -330,9 +330,14 @@ function populateTeamSelect(catValue) {
 (function() {
   const saved = localStorage.getItem('basketTeam');
   const validKeys = ['all', ...SELECTABLE_GROUPS.map(g => g.key)];
-  if (saved && validKeys.includes(saved)) activeFilter = saved;
+  if (saved === 'generale') {
+    activeFilter = 'all';
+    localStorage.setItem('basketTeam', 'all');
+  } else if (saved && validKeys.includes(saved)) {
+    activeFilter = saved;
+  }
   const activeGroup = GROUP_DEFS.find(g => g.key === activeFilter);
-  const savedCat = activeFilter === 'all' ? '' : (activeGroup ? activeGroup.category : '');
+  const savedCat = (activeFilter === 'all' || !activeGroup) ? '' : activeGroup.category;
   document.getElementById('cat-select').value = savedCat;
   populateTeamSelect(savedCat);
   document.getElementById('team-select').value = activeFilter;
