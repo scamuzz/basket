@@ -919,6 +919,7 @@ document.getElementById('pdf-upload-btn').addEventListener('click', async () => 
   const teamKey = document.getElementById('pdf-team-select').value;
   if (!file) { showToast('⚠️ Seleziona un file PDF!'); return; }
   if (file.type !== 'application/pdf') { showToast('⚠️ Solo file PDF consentiti!'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('⚠️ Il file supera il limite di 10 MB!'); return; }
   const uploadBtn = document.getElementById('pdf-upload-btn');
   const statusEl = document.getElementById('pdf-upload-status');
   uploadBtn.disabled = true;
@@ -944,11 +945,11 @@ document.getElementById('pdf-delete-btn').addEventListener('click', async () => 
   if (!confirm('Eliminare il PDF per questa squadra?')) return;
   try {
     const storageRef = storage.ref(`basket/pdf_calendario/${teamKey}.pdf`);
-    await storageRef.delete().catch(() => {});
+    await storageRef.delete().catch(e => { if (e.code !== 'storage/object-not-found') throw e; });
     await pdfDbRef.child(teamKey).remove();
     showToast('✅ PDF eliminato');
   } catch (e) {
-    showToast('❌ Errore nell\'eliminazione');
+    showToast('❌ Errore nell\'eliminazione: ' + (e.message || e));
   }
 });
 </script>
